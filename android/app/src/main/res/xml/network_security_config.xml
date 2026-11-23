@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<network-security-config>
+    <!-- Android cannot express runtime LAN IP ranges here. The sole HTTP client
+         validates every configured origin in AiConfig.validateUrl, requires
+         explicit per-provider LAN consent and never follows redirects. -->
+    <base-config cleartextTrafficPermitted="true" />
+</network-security-config>
