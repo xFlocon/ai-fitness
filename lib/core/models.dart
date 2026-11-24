@@ -259,6 +259,40 @@ const workoutFocuses = [
   'Mobilidade',
 ];
 
+final _youtubeId = RegExp(r'^[A-Za-z0-9_-]{11}$');
+
+String? youtubeVideoId(Object? value) {
+  if (value is! String) return null;
+  final input = value.trim();
+  if (_youtubeId.hasMatch(input)) return input;
+  final url = Uri.tryParse(input);
+  if (url == null ||
+      url.scheme != 'https' ||
+      url.hasPort ||
+      url.userInfo.isNotEmpty) {
+    return null;
+  }
+  final segments = url.pathSegments;
+  final String? id;
+  if (url.host == 'youtu.be' && segments.length == 1) {
+    id = segments.single;
+  } else if (const [
+    'youtube.com',
+    'www.youtube.com',
+    'm.youtube.com',
+  ].contains(url.host)) {
+    id = url.path == '/watch'
+        ? url.queryParameters['v']
+        : segments.length == 2 &&
+              const ['shorts', 'embed'].contains(segments.first)
+        ? segments.last
+        : null;
+  } else {
+    return null;
+  }
+  return id != null && _youtubeId.hasMatch(id) ? id : null;
+}
+
 Json validateWorkout(Json json, {bool generated = false}) {
   final exercises = json['exercises'];
   if (exercises is! List || exercises.isEmpty || exercises.length > 20) {
@@ -316,6 +350,15 @@ Json validateWorkout(Json json, {bool generated = false}) {
       }
 
       final sets = value('sets', 'séries', 1, 8, integer: true);
+      final video = generated
+          ? null
+          : text(e['videoId'] ?? '', max: 500, optional: true);
+      final videoId = youtubeVideoId(video);
+      if (video != null && video.isNotEmpty && videoId == null) {
+        throw FormatException(
+          '$exerciseName: informe um link válido do YouTube.',
+        );
+      }
       return <String, dynamic>{
         'name': text(e['name'], max: 120),
         'muscle': text(e['muscle'], max: 120),
@@ -341,6 +384,7 @@ Json validateWorkout(Json json, {bool generated = false}) {
         'instructions': text(e['instructions']),
         'safety': text(e['safety']),
         'alternatives': text(e['alternatives']),
+        'videoId': ?videoId,
       };
     }).toList(),
   };

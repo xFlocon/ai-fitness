@@ -31,7 +31,7 @@ void main() {
     expect(find.textContaining('Texto ausente'), findsOneWidget);
     await tester.pumpWidget(const SizedBox());
   });
-  testWidgets('cinco abas navegam sem dados de demonstração', (tester) async {
+  testWidgets('seis abas navegam sem dados de demonstração', (tester) async {
     tester.view.physicalSize = const Size(1080, 2400);
     tester.view.devicePixelRatio = 3;
     addTearDown(tester.view.resetPhysicalSize);
@@ -56,6 +56,7 @@ void main() {
     for (final pair in [
       ('Alimentação', 'Nutrir é cuidar.'),
       ('Treinos', 'Seu corpo em movimento.'),
+      ('Cardio', 'Caminhada e pedalada'),
       ('Assistente', 'Vamos conversar.'),
       ('Perfil', 'Teste'),
     ]) {

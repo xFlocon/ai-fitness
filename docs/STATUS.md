@@ -79,3 +79,22 @@ Erros de cota/créditos agora são distintos de limite temporário de requisiç�
 - Mantidos bloqueios clínicos e revisão antes de salvar. Abdômen não é apresentado como perda de gordura localizada.
 - Cinco testes adicionais cobrem descanso, carga, schema semanal, persistência/edição, divisão entre dias e bloqueio clínico. Geração real ainda depende de revisão/teste do usuário no aparelho.
 - Bateria completa: **74 testes aprovados**; análise estática sem problemas. APK 1.3.0+7 compilado e assinatura v2 verificada.
+
+## Versão 1.4.0 — cardio
+
+- Aba **Cardio** inicia caminhada ou pedalada. Serviço Android coleta GPS durante atividade, inclusive com tela bloqueada, e usa sensor de passos na caminhada quando disponível e autorizado.
+- Histórico local guarda duração, distância, passos e estimativa de calorias ativas; nenhuma coordenada fica no banco ou é enviada. Sessão em andamento fica em memória até terminar.
+- **76 testes aprovados**, incluindo cálculo de calorias, resumo salvo e navegação. GPS real e coleta com tela bloqueada ainda precisam de teste em movimento.
+- APK **1.4.0+8**: `build/app/outputs/flutter-apk/app-release.apk`, 74.756.071 bytes, assinatura v2 verificada. SHA-256: `7267bc12c534243f43263d37053ac01c47c741891281291979f56f088b0137d7`.
+
+## Versão 1.5.0 — vídeos por exercício
+
+- Geração pede termos à IA e busca vídeos curtos via YouTube Data API v3. Links devolvidos pela IA são ignorados; resultados são filtrados por duração, visibilidade e permissão de incorporação.
+- Player no editor e na execução, carregado sob demanda. Links manuais são opcionais. Rotinas antigas continuam compatíveis.
+- **78 testes aprovados**, análise sem problemas. Busca com chave real e reprodução no aparelho ainda não testadas.
+- APK **1.5.0+9**: `build/app/outputs/flutter-apk/app-release.apk`, 75.493.712 bytes, assinatura v2 verificada. SHA-256: `10695e242cd9173e65dd7b2ed461e8bd18980a72303ed6aeffe9ee76a45ce205`.
+
+## Versão 1.5.1 — marcação de séries
+
+- Quadradinho registra a série com valores planejados e inicia descanso; tocar novamente desmarca. Lápis separado edita carga e repetições registradas.
+- **79 testes aprovados**, análise sem problemas. APK **1.5.1+10** com assinatura v2 verificada. SHA-256: `6872af6a9f2e3f941f987ba51431eab5910c65fbcb20b7b986b2592e13047df8`.

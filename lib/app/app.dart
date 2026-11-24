@@ -12,6 +12,7 @@ import '../features/ai_assistant/chat.dart';
 import '../features/profile/profile.dart';
 import '../features/settings/settings.dart';
 import '../features/body_progress/progress.dart';
+import '../features/cardio/cardio.dart';
 
 final appearanceProvider = FutureProvider((ref) {
   ref.watch(changesProvider);
@@ -36,6 +37,7 @@ final routerProvider = Provider<GoRouter>((ref) {
           GoRoute(path: '/', builder: (_, _) => const DashboardPage()),
           GoRoute(path: '/nutrition', builder: (_, _) => const NutritionPage()),
           GoRoute(path: '/workouts', builder: (_, _) => const WorkoutsPage()),
+          GoRoute(path: '/cardio', builder: (_, _) => const CardioPage()),
           GoRoute(path: '/chat', builder: (_, _) => const ChatPage()),
           GoRoute(path: '/profile', builder: (_, _) => const ProfilePage()),
         ],
@@ -157,10 +159,17 @@ class HomeShell extends StatelessWidget {
   final String location;
   final Widget child;
   const HomeShell({super.key, required this.location, required this.child});
-  static const paths = ['/', '/nutrition', '/workouts', '/chat', '/profile'];
+  static const paths = [
+    '/',
+    '/nutrition',
+    '/workouts',
+    '/cardio',
+    '/chat',
+    '/profile',
+  ];
   @override
   Widget build(BuildContext context) {
-    final index = paths.indexOf(location).clamp(0, 4);
+    final index = paths.indexOf(location).clamp(0, paths.length - 1);
     return Scaffold(
       body: SafeArea(child: child),
       bottomNavigationBar: NavigationBar(
@@ -186,6 +195,11 @@ class HomeShell extends StatelessWidget {
             label: 'Treinos',
           ),
           NavigationDestination(
+            icon: Icon(Icons.directions_walk),
+            selectedIcon: Icon(Icons.directions_bike),
+            label: 'Cardio',
+          ),
+          NavigationDestination(
             icon: Icon(Icons.auto_awesome_outlined),
             selectedIcon: Icon(Icons.auto_awesome),
             label: 'Assistente',
@@ -197,7 +211,7 @@ class HomeShell extends StatelessWidget {
           ),
         ],
       ),
-      floatingActionButton: location == '/chat'
+      floatingActionButton: location == '/chat' || location == '/cardio'
           ? null
           : FloatingActionButton(
               tooltip: 'Registrar refeição',

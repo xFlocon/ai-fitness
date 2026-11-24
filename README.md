@@ -2,7 +2,7 @@
 
 Aplicativo Android em Flutter para registrar alimentação, treino e evolução localmente, com IA opcional configurada pelo usuário. Registros locais não exigem conta ou assinatura. Sem telemetria. Idioma: português brasileiro.
 
-**Versão atual: 1.3.0 — funcional, não escopo comercial completo.** Alimentação por foto/texto com estimativas nutricionais, treinos por dia e foco muscular, evolução corporal e chat multiprovedor. **74 testes aprovados**, análise estática sem problemas. Login ChatGPT foi confirmado pelo usuário em aparelho; testes automatizados de provedores usam transportes HTTP simulados. Funcionalidades e limites estão descritos abaixo.
+**Versão atual: 1.5.1.** Vídeos de exercícios no app, cardio por GPS, alimentação por foto/texto, treinos por dia e foco muscular, evolução corporal e chat multiprovedor. Login ChatGPT foi confirmado no aparelho; testes automatizados de provedores usam HTTP simulado.
 
 > O aplicativo não substitui acompanhamento médico, nutricional ou de educação física. Estimativas da IA podem estar erradas e precisam de revisão.
 
@@ -17,7 +17,7 @@ Código, documentação e testes estão neste repositório. APKs compilados, cre
 
 ## Executar
 
-Requer Flutter estável 3.50.1 / Dart 3.14, Java 21, Android SDK e licenças aceitas. Dependências resolvidas estão fixadas em `pubspec.lock`. Android mínimo: API 23.
+Requer Flutter estável 3.50.1 / Dart 3.14, Java 21, Android SDK e licenças aceitas. Dependências resolvidas estão fixadas em `pubspec.lock`. Android mínimo: API 24.
 
 ```bash
 flutter doctor -v
@@ -61,7 +61,21 @@ A compilação não instala automaticamente no aparelho conectado.
 4. Em Perfil, registre peso, observações e fotos opcionais. Fotos permanecem locais.
 5. Configure IA somente se desejar os recursos remotos.
 
+## Cardio — caminhada e pedalada
+
+Abra **Cardio**, inicie caminhada ou pedalada e aguarde sinal GPS em área aberta. Permita localização precisa; passos dependem de sensor e permissão de atividade física. App mostra duração, distância, velocidades atual e média e, na caminhada, passos quando disponíveis.
+
+Rastreamento continua ao trocar de aba ou bloquear tela, via serviço Android. Encerrar app pela lista de recentes ou forçar parada pode perder sessão não concluída. Ao terminar, resumo fica no histórico local; nenhuma coordenada é salva ou enviada. Calorias ativas são estimadas por peso, tempo total e velocidade média, sem medir relevo ou esforço individual. Sem dados suficientes, app não inventa estimativa.
+
 ## Configurar provedores
+
+### Vídeos por exercício — versão 1.5.0
+
+No Google Cloud, ative a **YouTube Data API v3** e crie uma chave restrita a essa API. Cadastre em **Configurações → Vídeos de exercícios**. Chave fica no cofre local e não entra nas exportações. Campo vazio remove a chave e desativa a busca automática.
+
+Ao gerar treino, IA sugere termos genéricos e app pesquisa vídeos públicos, incorporáveis e com menos de quatro minutos. A busca envia termos dos exercícios ao YouTube, não o perfil completo. Vídeos podem estar em outros idiomas. Confira se o vídeo ensina a variante correta: filtragem não avalia técnica ou conteúdo visual.
+
+Abra o exercício no editor ou na execução e toque **Carregar vídeo no app**. Player precisa de internet e se conecta ao YouTube somente após esse toque. Se faltar vídeo ou YouTube bloquear a reprodução, mantenha as instruções escritas, cole outro link no editor ou use **Abrir no YouTube**. Sem chave ou com cota esgotada, geração de treino continua funcionando.
 
 ### Treinos por dia e foco — versão 1.3.0
 
@@ -143,7 +157,7 @@ Não exponha portas de Ollama/LM Studio à internet. Modelos que exigem Response
 
 ## O que funciona
 
-- Material Design 3, tema escuro/claro/automático, cores, redução de movimento e navegação com cinco abas.
+- Material Design 3, tema escuro/claro/automático, cores, redução de movimento e navegação com seis abas.
 - Onboarding em etapas e edição posterior do perfil.
 - SQLite real por Drift, sem servidor para registros locais.
 - Diário por data e categoria; edição, exclusão e refeições favoritas.

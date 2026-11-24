@@ -10,6 +10,51 @@ import 'package:material_ui/material_ui.dart';
 import 'core_test.dart' show workout, profile;
 
 void main() {
+  testWidgets('quadradinho registra e desmarca; lápis edita apenas a série', (
+    tester,
+  ) async {
+    final store = LocalStore(NativeDatabase.memory());
+    addTearDown(store.close);
+    await store.put('workout', validateWorkout(workout), id: 'test');
+    const app = MaterialApp(home: WorkoutSession(id: 'test'));
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [storeProvider.overrideWithValue(store)],
+        child: app,
+      ),
+    );
+    await tester.pumpAndSettle();
+    final checkbox = find.byType(Checkbox).first;
+    await tester.scrollUntilVisible(checkbox, 200);
+    await tester.tap(checkbox);
+    await tester.pumpAndSettle();
+    expect(find.byType(AlertDialog), findsNothing);
+    expect(tester.widget<Checkbox>(checkbox).value, true);
+    expect((await store.list('session')).single.data['sets'], [
+      {'exercise': 'Exercício teste', 'index': 0, 'reps': 10, 'load': 0},
+    ]);
+    await tester.tap(find.byTooltip('Editar série 1'));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byType(TextField), '8');
+    await tester.tap(find.text('Salvar'));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byType(TextField), '2');
+    await tester.tap(find.text('Salvar'));
+    await tester.pumpAndSettle();
+    expect(find.text('Série 1 • 8 repetições'), findsOneWidget);
+    expect(
+      ((await store.list('session')).single.data['sets'] as List)
+          .single['load'],
+      2,
+    );
+    await tester.tap(checkbox);
+    await tester.pumpAndSettle();
+    expect(tester.widget<Checkbox>(checkbox).value, false);
+    expect((await store.list('session')).single.data['sets'], isEmpty);
+    await tester.pumpWidget(const SizedBox());
+    await tester.pump(const Duration(milliseconds: 400));
+  });
+
   Json withRest(Object? rest) => {
     ...workout,
     'exercises': [

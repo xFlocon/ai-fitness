@@ -15,6 +15,7 @@ import '../../core/store.dart';
 import '../../core/reminders.dart';
 import '../../shared/ui.dart';
 import '../food_analysis/analysis.dart';
+import '../workouts/exercise_video.dart';
 import 'chatgpt_settings.dart';
 
 class SettingsPage extends ConsumerWidget {
@@ -96,6 +97,14 @@ class SettingsPage extends ConsumerWidget {
           Panel(
             child: Column(
               children: [
+                ListTile(
+                  leading: const Icon(Icons.ondemand_video_outlined),
+                  title: const Text('Vídeos de exercícios'),
+                  subtitle: const Text(
+                    'Chave do YouTube para buscar termos de exercícios automaticamente',
+                  ),
+                  onTap: () => configureExerciseVideos(context),
+                ),
                 ListTile(
                   leading: const Icon(Icons.auto_awesome),
                   title: const Text('Inteligência Artificial'),
@@ -270,7 +279,7 @@ class SettingsPage extends ConsumerWidget {
               children: [
                 const ListTile(
                   title: Text('AI Fitness'),
-                  subtitle: Text('1.3.0 • acompanhamento local; IA opcional'),
+                  subtitle: Text('1.5.1 • acompanhamento local; IA opcional'),
                 ),
                 ListTile(
                   title: const Text('Licenças de código aberto'),
@@ -278,7 +287,7 @@ class SettingsPage extends ConsumerWidget {
                   onTap: () => showLicensePage(
                     context: context,
                     applicationName: 'AI Fitness',
-                    applicationVersion: '1.3.0',
+                    applicationVersion: '1.5.1',
                   ),
                 ),
               ],

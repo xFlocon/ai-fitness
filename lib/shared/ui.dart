@@ -162,6 +162,7 @@ Future<String?> ask(
   String initial = '',
   bool numeric = false,
   int lines = 1,
+  bool secret = false,
 }) async {
   final controller = TextEditingController(text: initial);
   final result = await showDialog<String>(
@@ -171,6 +172,7 @@ Future<String?> ask(
       content: TextField(
         controller: controller,
         autofocus: true,
+        obscureText: secret,
         maxLines: lines,
         maxLength: lines > 1 ? 4000 : 150,
         keyboardType: numeric
