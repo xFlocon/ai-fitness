@@ -41,12 +41,15 @@ const _aliases = <String, String>{
   'standing|em pe': 'empe',
   'single arm': 'unilateral',
   'one arm': 'unilateral',
+  'arms only|somente bracos|apenas bracos|so bracos': 'apenasbracos',
+  'legs only|somente pernas|apenas pernas|so pernas': 'apenaspernas',
 };
 const _variants = {
   {'halter', 'barra', 'polia', 'maquina'},
   {'inclinado', 'declinado', 'reto'},
   {'sentado', 'empe'},
   {'martelo', 'concentrada', 'scott', 'inversa'},
+  {'apenasbracos', 'apenaspernas'},
 };
 
 String _videoWords(String input) {
@@ -70,13 +73,25 @@ String _videoWords(String input) {
       .trim();
 }
 
-int _videoMatch(String title, String query, String? name) {
+bool _unsuitableTitle(String title, String terms) {
   final candidate = _videoWords(title);
   if (RegExp(
-    r'\b(top \d+|compilation|compilacao|full workout|treino completo|melhores exercicios)\b',
+    r'\b(top \d+|compilation|compilacao|full workout|treino completo|melhores exercicios|variations|variacoes)\b',
   ).hasMatch(candidate)) {
-    return 0;
+    return true;
   }
+  final requested = _videoWords(terms).split(' ').toSet();
+  final actual = candidate.split(' ').toSet();
+  return _variants.any((group) {
+    final needed = requested.intersection(group);
+    return needed.isNotEmpty &&
+        actual.intersection(group).difference(needed).isNotEmpty;
+  });
+}
+
+int _videoMatch(String title, String query, String? name) {
+  if (_unsuitableTitle(title, '$query ${name ?? ''}')) return 0;
+  final candidate = _videoWords(title);
   final words = candidate.split(' ').toSet();
   final expected = [
     for (final term in [query, ?name]) _videoWords(term),
@@ -268,7 +283,43 @@ Future<List<String?>> findExerciseVideos(
             },
         ],
     ];
+    bool unsuitable(int i, Json video) => _unsuitableTitle(
+      video['title'] as String,
+      '${queries[i]} ${names?[i] ?? ''} ${portugueseQueries?[i] ?? ''}',
+    );
     for (final (i, row) in options.indexed) {
+      row.removeWhere((v) => unsuitable(i, v));
+    }
+    Future<List<List<Json>>> extra(List<int> indices) async {
+      final expanded = List.generate(queries.length, (_) => <Json>[]);
+      if (indices.isEmpty) return expanded;
+      await findExerciseVideos(
+        [for (final i in indices) _retryVideoQuery(queries[i], names?[i])],
+        key,
+        client: dio,
+        cancel: cancel,
+        choose: (rows) async {
+          for (final (j, i) in indices.indexed) {
+            final seen = options[i].map((v) => v['id']).toSet();
+            expanded[i] = rows[j]
+                .where((v) => !unsuitable(i, v) && seen.add(v['id']))
+                .toList();
+          }
+          return [];
+        },
+      );
+      return expanded;
+    }
+
+    // ponytail: one extra search per exercise, not open-ended pagination.
+    final toppedUp = [
+      if (portugueseQueries != null)
+        for (final (i, row) in options.indexed)
+          if (row.length < 4) i,
+    ];
+    final supplements = await extra(toppedUp);
+    for (final (i, row) in options.indexed) {
+      row.addAll(supplements[i]);
       int score(Json v) =>
           _videoMatch(v['title'] as String, queries[i], names?[i]);
       row.sort((a, b) {
@@ -289,32 +340,18 @@ Future<List<String?>> findExerciseVideos(
         else
           null,
     ];
-    // ponytail: one extra round for missing exercises; don't regenerate the workout.
     if (portugueseQueries != null && results.contains(null)) {
-      final retry = {
+      final retry = [
         for (final (i, id) in results.indexed)
-          if (id == null) i: _retryVideoQuery(queries[i], names?[i]),
-      }..removeWhere((i, query) => query == searchTerms[i]);
-      if (retry.isNotEmpty) {
-        final indices = retry.keys.toList();
-        final recovered = await findExerciseVideos(
-          retry.values.toList(),
-          key,
-          client: dio,
-          cancel: cancel,
-          choose: (rows) async {
-            final expanded = List.generate(queries.length, (_) => <Json>[]);
-            for (final (j, i) in indices.indexed) {
-              expanded[i] = rows[j];
-            }
-            final picks = await choose(expanded);
-            return [
-              for (final i in indices) i < picks.length ? picks[i] : null,
-            ];
-          },
-        );
-        for (final (j, i) in indices.indexed) {
-          results[i] = recovered[j];
+          if (id == null && !toppedUp.contains(i)) i,
+      ];
+      final rows = await extra(retry);
+      if (rows.any((row) => row.isNotEmpty)) {
+        final picks = await choose(rows);
+        for (final i in retry) {
+          if (i < picks.length && rows[i].any((v) => v['id'] == picks[i])) {
+            results[i] = picks[i];
+          }
         }
       }
     }

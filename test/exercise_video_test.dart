@@ -33,34 +33,46 @@ void main() {
       ]);
     },
   );
-  test(
-    'repete só a busca de marcha no lugar e preserva a seleção anterior',
-    () async {
-      final youtube = _YouTube(semantic: true);
-      final dio = Dio()..httpClientAdapter = youtube;
-      addTearDown(dio.close);
-      expect(
-        await findExerciseVideos(
-          ['dumbbell hammer curl', 'march in place'],
-          'test-key',
-          names: ['Rosca martelo com halteres', 'Marcha no lugar'],
-          portugueseQueries: ['rosca martelo com halteres', 'marcha no lugar'],
-          client: dio,
-          choose: (rows) async {
-            if (rows.first.isNotEmpty) return [id, null];
-            expect(rows[1].single['title'], 'How to March in Place');
-            return [null, 'march123456'];
-          },
-        ),
-        [id, 'march123456'],
-      );
-      expect(youtube.queries, [
-        'dumbbell hammer curl|rosca martelo com halteres',
-        'march in place|marcha no lugar',
-        'marching in place exercise',
-      ]);
-    },
-  );
+  test('completa quatro candidatos únicos antes de chamar a IA', () async {
+    final youtube = _YouTube(semantic: true);
+    final dio = Dio()..httpClientAdapter = youtube;
+    addTearDown(dio.close);
+    var comparisons = 0;
+    expect(
+      await findExerciseVideos(
+        ['dumbbell hammer curl', 'march in place'],
+        'test-key',
+        names: ['Rosca martelo com halteres', 'Marcha no lugar'],
+        portugueseQueries: ['rosca martelo com halteres', 'marcha no lugar'],
+        client: dio,
+        choose: (rows) async {
+          comparisons++;
+          expect(rows.first.map((v) => v['id']).toSet(), hasLength(4));
+          expect(
+            rows.first.map((v) => v['id']),
+            isNot(contains('wrong123456')),
+          );
+          expect(
+            rows.first.map((v) => v['id']),
+            isNot(contains('top12345678')),
+          );
+          expect(
+            rows[1].map((v) => v['title']),
+            contains('How to March in Place'),
+          );
+          return [id, 'march123456'];
+        },
+      ),
+      [id, 'march123456'],
+    );
+    expect(comparisons, 1);
+    expect(youtube.queries, [
+      'dumbbell hammer curl|rosca martelo com halteres',
+      'march in place|marcha no lugar',
+      'dumbbell hammer curl exercise',
+      'marching in place exercise',
+    ]);
+  });
   test('português e inglês dividem uma busca por par de termos', () async {
     final youtube = _YouTube();
     final dio = Dio()..httpClientAdapter = youtube;
@@ -92,15 +104,13 @@ void main() {
         'test-key',
         client: dio,
         choose: (rows) async {
-          expect(
-            rows.first.map((v) => v['id']),
-            containsAll([id, 'wrong123456']),
-          );
+          expect(rows.first.map((v) => v['id']), [id]);
           expect(
             rows.first.map((v) => v['id']),
             isNot(contains('long1234567')),
           );
           expect(rows.first.first['description'], 'Demonstração');
+          expect(rows[1].single['id'], 'bench123456');
           return [id, id];
         },
       );
@@ -189,11 +199,23 @@ class _YouTube implements HttpClientAdapter {
                                 'Top 5 Dumbbell Hammer Curl Variations',
                             long: 'How to Dumbbell Hammer Curl',
                             valid: 'Como fazer rosca martelo com halteres',
+                            if (options.queryParameters['q'] ==
+                                'dumbbell hammer curl exercise') ...{
+                              'curl1234567': 'How to Dumbbell Hammer Curl',
+                              'curl7654321': 'Rosca martelo com halteres',
+                              'curl3333333': 'Dumbbell Hammer Curl Form',
+                            },
                           }
                         : options.queryParameters['q'] ==
                               'marching in place exercise'
                         ? {march: 'How to March in Place'}
-                        : {wrong: 'Decline Bench Press Tutorial'})
+                        : {
+                            wrong: 'Decline Bench Press Tutorial',
+                            if (semantic &&
+                                options.queryParameters['q'] ==
+                                    'incline bench press')
+                              'bench123456': 'Incline Bench Press Tutorial',
+                          })
                     .entries)
               {
                 'id': {'videoId': entry.key},
@@ -207,7 +229,14 @@ class _YouTube implements HttpClientAdapter {
             for (final id in [
               long,
               valid,
-              if (semantic) ...[wrong, march],
+              if (semantic) ...[
+                wrong,
+                march,
+                'curl1234567',
+                'curl7654321',
+                'curl3333333',
+                'bench123456',
+              ],
             ])
               {
                 'id': id,

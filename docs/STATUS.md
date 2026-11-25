@@ -109,3 +109,8 @@ Erros de cota/créditos agora são distintos de limite temporário de requisiç�
 - Busca combina termos em português e inglês. IA compara instruções com até quatro candidatos por exercício; nova busca roda apenas para os que ficaram sem vídeo.
 - Editor preserva a sugestão incompleta. Para salvar, adicione o link que falta ou remova o exercício.
 - **83 testes aprovados**, análise sem problemas. APK **1.5.6+15** com assinatura verificada. SHA-256: `fefc493d5fb48c6d3048ae2be5c20f0c3b00a4f9bd4f1a0fa3f5893610c690ed`.
+
+## Versão 1.5.8 — prioridade para a demonstração correta
+
+- Busca bilíngue usa nomes comuns de tutoriais, sem exigir tradução literal. Até quatro candidatos por exercício; compilações e incompatibilidades explícitas ficam fora da seleção.
+- **83 testes aprovados**, análise sem problemas. APK **1.5.8+17** com assinatura verificada. SHA-256: `9d8f89dba1735d774417cd3e5611656ca7b60fcdb7289970cf13d8d5105ca166`.
