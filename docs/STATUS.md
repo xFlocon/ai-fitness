@@ -103,3 +103,9 @@ Erros de cota/créditos agora são distintos de limite temporário de requisiç�
 
 - Novas buscas comparam títulos com o exercício e sua variação, descartam compilações comuns e não anexam vídeo sem correspondência. Links existentes não mudam.
 - **79 testes aprovados**, análise sem problemas. APK **1.5.2+11** com assinatura v2 verificada. SHA-256: `1f15f2105ca5cebb480feca936c1123a39e244914b7f6b84a53731c14a9f48ee`.
+
+## Versão 1.5.6 — busca bilíngue de demonstrações
+
+- Busca combina termos em português e inglês. IA compara instruções com até quatro candidatos por exercício; nova busca roda apenas para os que ficaram sem vídeo.
+- Editor preserva a sugestão incompleta. Para salvar, adicione o link que falta ou remova o exercício.
+- **83 testes aprovados**, análise sem problemas. APK **1.5.6+15** com assinatura verificada. SHA-256: `fefc493d5fb48c6d3048ae2be5c20f0c3b00a4f9bd4f1a0fa3f5893610c690ed`.

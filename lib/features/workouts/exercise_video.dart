@@ -119,11 +119,24 @@ String exerciseVideoQuery(Object? suggested, String name) {
       .trim();
 }
 
+String _retryVideoQuery(String query, String? name) {
+  final movement = _videoWords('$query ${name ?? ''}');
+  if (RegExp(r'\b(dead bug|inseto morto)\b').hasMatch(movement)) {
+    return 'dead bug exercise';
+  }
+  if (RegExp(r'\b(marcha|marchar) lugar\b').hasMatch(movement)) {
+    return 'marching in place exercise';
+  }
+  return '$query exercise';
+}
+
 // Search uses only exercise terms. AI-supplied links and domains never enter the player.
 Future<List<String?>> findExerciseVideos(
   List<String> queries,
   String key, {
   List<String>? names,
+  List<String>? portugueseQueries,
+  Future<List<String?>> Function(List<List<Json>>)? choose,
   CancelToken? cancel,
   Dio? client,
 }) async {
@@ -147,13 +160,21 @@ Future<List<String?>> findExerciseVideos(
   }
 
   try {
-    // ponytail: rank titles, not video frames; leave uncertain exercises without a link.
+    final searchTerms = [
+      for (final (i, query) in queries.indexed)
+        {
+          query.toLowerCase(): query,
+          if (portugueseQueries?[i] case final String pt when pt.isNotEmpty)
+            pt.toLowerCase(): pt,
+        }.values.join('|'),
+    ];
+    // ponytail: review metadata, not video frames; leave uncertain exercises without a link.
     final candidates = await Future.wait(
-      queries.toSet().map((query) async {
+      searchTerms.toSet().map((query) async {
         final hits = await get('search', {
           'part': 'id,snippet',
           'type': 'video',
-          'q': '$query exercise proper form tutorial',
+          'q': query,
           'videoDuration': 'short',
           'videoEmbeddable': 'true',
           'safeSearch': 'strict',
@@ -164,10 +185,10 @@ Future<List<String?>> findExerciseVideos(
             if (hit
                 case {
                   'id': {'videoId': final String id},
-                  'snippet': {'title': final String title},
+                  'snippet': final Json snippet,
                 }
                 when youtubeVideoId(id) == id)
-              id: title,
+              id: snippet,
         });
       }),
     );
@@ -175,9 +196,15 @@ Future<List<String?>> findExerciseVideos(
     final ranked = [
       for (final (i, query) in queries.indexed)
         (() {
+          if (choose != null) return byQuery[searchTerms[i]]!.keys.toList();
           final matches = <({String id, int score, int order})>[];
-          for (final (order, entry) in byQuery[query]!.entries.indexed) {
-            final score = _videoMatch(entry.value, query, names?[i]);
+          for (final (order, entry)
+              in byQuery[searchTerms[i]]!.entries.indexed) {
+            final score = _videoMatch(
+              '${entry.value['title'] ?? ''}',
+              query,
+              names?[i],
+            );
             if (score > 0) {
               matches.add((id: entry.key, score: score, order: order));
             }
@@ -190,12 +217,16 @@ Future<List<String?>> findExerciseVideos(
           return matches.map((m) => m.id).take(2).toList();
         })(),
     ];
-    final ids = ranked.expand((ids) => ids).toSet();
+    final ids = ranked.expand((ids) => ids).toSet().toList();
     if (ids.isEmpty) return List.filled(queries.length, null);
-    final videos = await get('videos', {
-      'part': 'status,contentDetails',
-      'id': ids.join(','),
-    });
+    final videos = (await Future.wait([
+      for (var i = 0; i < ids.length; i += 50)
+        get('videos', {
+          'part': 'status,contentDetails',
+          'id': ids.skip(i).take(50).join(','),
+        }),
+    ])).expand((batch) => batch);
+    final durations = <String, int>{};
     final usable = videos
         .where((video) {
           final status = video['status'] as Map?;
@@ -206,6 +237,7 @@ Future<List<String?>> findExerciseVideos(
           if (match == null) return false;
           final seconds =
               60 * int.parse(match[1] ?? '0') + int.parse(match[2] ?? '0');
+          if (video['id'] is String) durations[video['id'] as String] = seconds;
           return status?['embeddable'] == true &&
               status?['privacyStatus'] == 'public' &&
               seconds > 0 &&
@@ -213,11 +245,87 @@ Future<List<String?>> findExerciseVideos(
         })
         .map((video) => video['id'])
         .toSet();
-    return ranked.map((ids) => ids.where(usable.contains).firstOrNull).toList();
+    if (choose == null) {
+      return ranked
+          .map((ids) => ids.where(usable.contains).firstOrNull)
+          .toList();
+    }
+    final options = [
+      for (final (i, ids) in ranked.indexed)
+        [
+          for (final id in ids.where(usable.contains))
+            <String, dynamic>{
+              'id': id,
+              'seconds': durations[id],
+              'title': _videoMetadata(
+                byQuery[searchTerms[i]]![id]!['title'],
+                160,
+              ),
+              'description': _videoMetadata(
+                byQuery[searchTerms[i]]![id]!['description'],
+                80,
+              ),
+            },
+        ],
+    ];
+    for (final (i, row) in options.indexed) {
+      int score(Json v) =>
+          _videoMatch(v['title'] as String, queries[i], names?[i]);
+      row.sort((a, b) {
+        final relevance = score(b).compareTo(score(a));
+        return relevance != 0
+            ? relevance
+            : (a['seconds'] as int).compareTo(b['seconds'] as int);
+      });
+      if (row.length > 4) row.removeRange(4, row.length);
+    }
+    final chosen = options.every((row) => row.isEmpty)
+        ? const <String?>[]
+        : await choose(options);
+    final results = [
+      for (final (i, row) in options.indexed)
+        if (i < chosen.length && row.any((video) => video['id'] == chosen[i]))
+          chosen[i]
+        else
+          null,
+    ];
+    // ponytail: one extra round for missing exercises; don't regenerate the workout.
+    if (portugueseQueries != null && results.contains(null)) {
+      final retry = {
+        for (final (i, id) in results.indexed)
+          if (id == null) i: _retryVideoQuery(queries[i], names?[i]),
+      }..removeWhere((i, query) => query == searchTerms[i]);
+      if (retry.isNotEmpty) {
+        final indices = retry.keys.toList();
+        final recovered = await findExerciseVideos(
+          retry.values.toList(),
+          key,
+          client: dio,
+          cancel: cancel,
+          choose: (rows) async {
+            final expanded = List.generate(queries.length, (_) => <Json>[]);
+            for (final (j, i) in indices.indexed) {
+              expanded[i] = rows[j];
+            }
+            final picks = await choose(expanded);
+            return [
+              for (final i in indices) i < picks.length ? picks[i] : null,
+            ];
+          },
+        );
+        for (final (j, i) in indices.indexed) {
+          results[i] = recovered[j];
+        }
+      }
+    }
+    return results;
   } finally {
     if (client == null) dio.close(force: true);
   }
 }
+
+String _videoMetadata(Object? value, int limit) =>
+    value is String ? String.fromCharCodes(value.runes.take(limit)) : '';
 
 Future<void> configureExerciseVideos(BuildContext context) async {
   const vault = KeyVault();
