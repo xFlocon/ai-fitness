@@ -40,8 +40,13 @@ void main() {
     final dio = Dio()..httpClientAdapter = _YouTube();
     addTearDown(dio.close);
     final results = await findExerciseVideos(
-      ['curl', 'curl', 'press'],
+      ['dumbbell hammer curl', 'dumbbell hammer curl', 'incline bench press'],
       'test-key',
+      names: [
+        'Rosca martelo com halteres',
+        'Rosca martelo com halteres',
+        'Supino inclinado',
+      ],
       client: dio,
     );
     expect(results, [id, id, null]);
@@ -64,17 +69,28 @@ class _YouTube implements HttpClientAdapter {
     expect(options.uri.toString(), isNot(contains('test-key')));
     const valid = 'abcdefghijk';
     const long = 'long1234567';
+    const wrong = 'wrong123456';
+    const compilation = 'top12345678';
     final search = options.uri.path.endsWith('/search');
     if (search) expect(options.queryParameters['videoEmbeddable'], 'true');
     final items = search
         ? [
-            for (final id in [
-              long,
-              if ((options.queryParameters['q'] as String).startsWith('curl'))
-                valid,
-            ])
+            for (final entry
+                in ((options.queryParameters['q'] as String).startsWith(
+                          'dumbbell',
+                        )
+                        ? {
+                            wrong: 'Barbell Hammer Curl Tutorial',
+                            compilation:
+                                'Top 5 Dumbbell Hammer Curl Variations',
+                            long: 'How to Dumbbell Hammer Curl',
+                            valid: 'Como fazer rosca martelo com halteres',
+                          }
+                        : {wrong: 'Decline Bench Press Tutorial'})
+                    .entries)
               {
-                'id': {'videoId': id},
+                'id': {'videoId': entry.key},
+                'snippet': {'title': entry.value},
               },
           ]
         : [
@@ -85,6 +101,12 @@ class _YouTube implements HttpClientAdapter {
                 'contentDetails': {'duration': id == long ? 'PT4M' : 'PT35S'},
               },
           ];
+    if (!search) {
+      expect(
+        (options.queryParameters['id'] as String).split(','),
+        unorderedEquals([long, valid]),
+      );
+    }
     return ResponseBody.fromString(
       jsonEncode({'items': items}),
       200,

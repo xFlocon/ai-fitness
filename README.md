@@ -4,7 +4,7 @@ Licença: [MIT](LICENSE).
 
 Aplicativo Android em Flutter para registrar alimentação, treino e evolução localmente, com IA opcional configurada pelo usuário. Registros locais não exigem conta ou assinatura. Sem telemetria. Idioma: português brasileiro.
 
-**Versão atual: 1.5.1.** Vídeos de exercícios no app, cardio por GPS, alimentação por foto/texto, treinos por dia e foco muscular, evolução corporal e chat multiprovedor. Login ChatGPT foi confirmado no aparelho; testes automatizados de provedores usam HTTP simulado.
+**Versão atual: 1.5.2.** Vídeos de exercícios no app, cardio por GPS, alimentação por foto/texto, treinos por dia e foco muscular, evolução corporal e chat multiprovedor. Login ChatGPT foi confirmado no aparelho; testes automatizados de provedores usam HTTP simulado.
 
 > O aplicativo não substitui acompanhamento médico, nutricional ou de educação física. Estimativas da IA podem estar erradas e precisam de revisão.
 
@@ -75,7 +75,7 @@ Rastreamento continua ao trocar de aba ou bloquear tela, via serviço Android. E
 
 No Google Cloud, ative a **YouTube Data API v3** e crie uma chave restrita a essa API. Cadastre em **Configurações → Vídeos de exercícios**. Chave fica no cofre local e não entra nas exportações. Campo vazio remove a chave e desativa a busca automática.
 
-Ao gerar treino, IA sugere termos genéricos e app pesquisa vídeos públicos, incorporáveis e com menos de quatro minutos. A busca envia termos dos exercícios ao YouTube, não o perfil completo. Vídeos podem estar em outros idiomas. Confira se o vídeo ensina a variante correta: filtragem não avalia técnica ou conteúdo visual.
+Ao gerar treino, IA sugere termos e app pesquisa vídeos públicos, incorporáveis e com menos de quatro minutos. A partir da 1.5.2, app compara título com exercício e variação (por exemplo, halteres ou barra, supino inclinado ou declinado). Sem título compatível, não anexa vídeo. A busca envia termos dos exercícios ao YouTube, não o perfil completo. Vídeos salvos não são alterados retroativamente; você pode trocar o link no editor. A filtragem não avalia técnica ou conteúdo visual.
 
 Abra o exercício no editor ou na execução e toque **Carregar vídeo no app**. Player precisa de internet e se conecta ao YouTube somente após esse toque. Se faltar vídeo ou YouTube bloquear a reprodução, mantenha as instruções escritas, cole outro link no editor ou use **Abrir no YouTube**. Sem chave ou com cota esgotada, geração de treino continua funcionando.
 

@@ -98,3 +98,8 @@ Erros de cota/créditos agora são distintos de limite temporário de requisiç�
 
 - Quadradinho registra a série com valores planejados e inicia descanso; tocar novamente desmarca. Lápis separado edita carga e repetições registradas.
 - **79 testes aprovados**, análise sem problemas. APK **1.5.1+10** com assinatura v2 verificada. SHA-256: `6872af6a9f2e3f941f987ba51431eab5910c65fbcb20b7b986b2592e13047df8`.
+
+## Versão 1.5.2 — relevância dos vídeos
+
+- Novas buscas comparam títulos com o exercício e sua variação, descartam compilações comuns e não anexam vídeo sem correspondência. Links existentes não mudam.
+- **79 testes aprovados**, análise sem problemas. APK **1.5.2+11** com assinatura v2 verificada. SHA-256: `1f15f2105ca5cebb480feca936c1123a39e244914b7f6b84a53731c14a9f48ee`.

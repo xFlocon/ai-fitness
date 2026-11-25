@@ -353,13 +353,14 @@ class _WorkoutEditorState extends ConsumerState<WorkoutEditor> {
                 ),
             ],
             videoKey,
+            names: items.map((e) => e['name'] as String).toList(),
             cancel: cancel,
           );
           for (final (index, id) in ids.indexed) {
             if (id != null) items[index]['videoId'] = id;
           }
           videoNotice =
-              '${ids.nonNulls.length}/${items.length} exercícios com vídeo encontrado. Confira se demonstram a variante certa.';
+              '${ids.nonNulls.length}/${items.length} exercícios com vídeo compatível pelo título. Sem correspondência, fica sem vídeo. Confira a demonstração no editor.';
         } catch (e) {
           if (e is DioException && CancelToken.isCancel(e)) rethrow;
           videoNotice = 'Busca de vídeos indisponível. Confira conexão, chave e cota do YouTube. Você pode adicionar links no editor.';
