@@ -241,16 +241,23 @@ class DashboardPage extends ConsumerWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    'Sua evolução',
-                    style: Theme.of(context).textTheme.titleLarge,
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          'Sua evolução',
+                          style: Theme.of(context).textTheme.titleLarge,
+                        ),
+                      ),
+                      const Icon(Icons.chevron_right),
+                    ],
                   ),
                   const SizedBox(height: 8),
                   const Text(
                     'Tendências importam mais que oscilações diárias.',
                   ),
                   const SizedBox(height: 16),
-                  WeightChart(store: store, days: 30),
+                  WeightChart(store: store, days: 30, interactive: false),
                 ],
               ),
             ),

@@ -1,5 +1,6 @@
 import 'package:ai_fitness/app/app.dart';
 import 'package:ai_fitness/core/store.dart';
+import 'package:fl_chart/fl_chart.dart';
 import 'package:drift/native.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -45,6 +46,13 @@ void main() {
       'experience': 'Iniciante',
     }, id: 'profile');
     await store.put('settings', {'reduceMotion': true}, id: 'appearance');
+    final now = DateTime.now();
+    for (final (daysAgo, weight) in [(2, 85), (1, 83)]) {
+      await store.put('weight', {
+        'date': now.subtract(Duration(days: daysAgo)).toIso8601String(),
+        'weight': weight,
+      });
+    }
     await tester.pumpWidget(
       ProviderScope(
         overrides: [storeProvider.overrideWithValue(store)],
@@ -67,6 +75,30 @@ void main() {
       expect(find.text(pair.$2), findsOneWidget);
       expect(tester.takeException(), isNull);
     }
+    await tester.tap(find.text('Início').last);
+    await tester.pumpAndSettle();
+    final cardTitle = find.text('Sua evolução');
+    await tester.scrollUntilVisible(
+      cardTitle,
+      240,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(cardTitle);
+    await tester.pumpAndSettle();
+    expect(find.text('Evolução corporal'), findsOneWidget);
+    Navigator.of(tester.element(find.text('Evolução corporal'))).pop();
+    await tester.pumpAndSettle();
+    final chart = find.byType(LineChart);
+    await tester.ensureVisible(chart);
+    await tester.pumpAndSettle();
+    final area = tester.getRect(chart);
+    await tester.tapAt(
+      area.topLeft + Offset(area.width * .30, area.height * .15),
+    );
+    await tester.pumpAndSettle();
+    expect(find.text('Evolução corporal'), findsOneWidget);
+    expect(find.text('Variação no período: -2,0 kg'), findsOneWidget);
     await tester.pumpWidget(const SizedBox());
   });
 }

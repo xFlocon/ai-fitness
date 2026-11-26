@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:math' as math;
 
 import 'package:fl_chart/fl_chart.dart';
 import 'package:material_ui/material_ui.dart';
@@ -14,7 +15,13 @@ import '../../shared/ui.dart';
 class WeightChart extends StatelessWidget {
   final LocalStore store;
   final int days;
-  const WeightChart({super.key, required this.store, required this.days});
+  final bool interactive;
+  const WeightChart({
+    super.key,
+    required this.store,
+    required this.days,
+    this.interactive = true,
+  });
   @override
   Widget build(BuildContext context) => Load(
     future: store.list('weight'),
@@ -27,9 +34,9 @@ class WeightChart extends StatelessWidget {
               )
               .toList()
             ..sort(
-              (a, b) => (a.data['date'] as String).compareTo(
-                b.data['date'] as String,
-              ),
+              (a, b) =>
+                  DateTime.parse(a.data['date'] as String)
+                      .compareTo(DateTime.parse(b.data['date'] as String)),
             );
       if (sorted.isEmpty) {
         return const SizedBox(
@@ -39,20 +46,74 @@ class WeightChart extends StatelessWidget {
           ),
         );
       }
-      return SizedBox(
+      final first = DateTime.parse(sorted.first.data['date'] as String);
+      final last = DateTime.parse(sorted.last.data['date'] as String);
+      final spots = sorted
+          .map(
+            (r) => FlSpot(
+              DateTime.parse(r.data['date'] as String)
+                      .difference(first)
+                      .inMilliseconds /
+                  Duration.millisecondsPerDay,
+              (r.data['weight'] as num).toDouble(),
+            ),
+          )
+          .toList();
+      final weights = spots.map((p) => p.y);
+      final low = weights.reduce(math.min);
+      final high = weights.reduce(math.max);
+      final step = math.max(.5, ((high - low) / 2).ceil() / 2);
+      final minY = (low / step).floor() * step - step;
+      final maxY = (high / step).ceil() * step + step;
+      final delta = spots.last.y - spots.first.y;
+      final theme = Theme.of(context);
+      final color = theme.colorScheme.primary;
+      final locale = MaterialLocalizations.of(context);
+      String kg(double value) => value.toStringAsFixed(1).replaceAll('.', ',');
+      final chart = SizedBox(
         height: 180,
         child: LineChart(
           duration: MediaQuery.disableAnimationsOf(context)
               ? Duration.zero
               : const Duration(milliseconds: 250),
           LineChartData(
-            minX: 0,
-            maxX: days.toDouble(),
-            gridData: const FlGridData(show: false),
+            minX: spots.last.x == 0 ? -.5 : -spots.last.x * .05,
+            maxX: spots.last.x == 0 ? .5 : spots.last.x * 1.05,
+            minY: minY,
+            maxY: maxY,
+            lineTouchData: LineTouchData(
+              enabled: interactive,
+              touchTooltipData: LineTouchTooltipData(
+                fitInsideHorizontally: true,
+                fitInsideVertically: true,
+                getTooltipColor: (_) => theme.colorScheme.inverseSurface,
+                getTooltipItems: (points) => [
+                  for (final point in points)
+                    LineTooltipItem(
+                      '${locale.formatShortDate(DateTime.parse(sorted[point.spotIndex].data['date'] as String).toLocal())}\n${kg(point.y)} kg',
+                      TextStyle(color: theme.colorScheme.onInverseSurface),
+                    ),
+                ],
+              ),
+            ),
+            gridData: FlGridData(
+              drawVerticalLine: false,
+              horizontalInterval: step,
+              getDrawingHorizontalLine: (_) =>
+                  FlLine(color: theme.colorScheme.outlineVariant),
+            ),
             borderData: FlBorderData(show: false),
-            titlesData: const FlTitlesData(
+            titlesData: FlTitlesData(
               leftTitles: AxisTitles(
-                sideTitles: SideTitles(showTitles: true, reservedSize: 40),
+                sideTitles: SideTitles(
+                  showTitles: true,
+                  reservedSize: 52,
+                  interval: step,
+                  getTitlesWidget: (value, meta) => SideTitleWidget(
+                    meta: meta,
+                    child: Text(kg(value), style: theme.textTheme.labelSmall),
+                  ),
+                ),
               ),
               topTitles: AxisTitles(),
               rightTitles: AxisTitles(),
@@ -61,35 +122,53 @@ class WeightChart extends StatelessWidget {
             lineBarsData: [
               LineChartBarData(
                 isCurved: false,
-                color: Theme.of(context).colorScheme.primary,
+                color: color,
                 barWidth: 3,
                 belowBarData: BarAreaData(
                   show: true,
                   gradient: LinearGradient(
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
-                    colors: [
-                      Theme.of(context).colorScheme.primary
-                          .withValues(alpha: .18),
-                      Colors.transparent,
-                    ],
+                    colors: [color.withValues(alpha: .20), Colors.transparent],
                   ),
                 ),
-                spots: sorted
-                    .map(
-                      (r) => FlSpot(
-                        DateTime.parse(r.data['date'] as String)
-                                .difference(start)
-                                .inMinutes /
-                            1440,
-                        (r.data['weight'] as num).toDouble(),
-                      ),
-                    )
-                    .toList(),
+                spots: spots,
               ),
             ],
           ),
         ),
+      );
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('${kg(spots.last.y)} kg', style: theme.textTheme.headlineSmall),
+          Text(
+            spots.length == 1
+                ? '1 registro nos últimos $days dias'
+                : 'Variação no período: ${delta > 0 ? '+' : ''}${kg(delta)} kg',
+          ),
+          const SizedBox(height: 12),
+          if (interactive) chart else IgnorePointer(child: chart),
+          Padding(
+            padding: const EdgeInsets.only(left: 52, top: 8),
+            child: Wrap(
+              spacing: 12,
+              runSpacing: 4,
+              alignment: WrapAlignment.spaceBetween,
+              children: [
+                Text(
+                  locale.formatShortDate(first.toLocal()),
+                  style: theme.textTheme.labelSmall,
+                ),
+                if (!DateUtils.isSameDay(first.toLocal(), last.toLocal()))
+                  Text(
+                    locale.formatShortDate(last.toLocal()),
+                    style: theme.textTheme.labelSmall,
+                  ),
+              ],
+            ),
+          ),
+        ],
       );
     },
   );
