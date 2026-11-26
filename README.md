@@ -4,7 +4,7 @@ Licença: [MIT](LICENSE).
 
 Aplicativo Android em Flutter para registrar alimentação, treino e evolução localmente, com IA opcional configurada pelo usuário. Registros locais não exigem conta ou assinatura. Sem telemetria. Idioma: português brasileiro.
 
-**Versão atual: 1.5.8.** Vídeos de exercícios no app, cardio por GPS, alimentação por foto/texto, treinos por dia e foco muscular, evolução corporal e chat multiprovedor. Login ChatGPT foi confirmado no aparelho; testes automatizados de provedores usam HTTP simulado.
+**Versão atual: 1.5.10.** Vídeos de exercícios no app, cardio por GPS, alimentação por foto/texto, treinos por dia e foco muscular, evolução corporal e chat multiprovedor. Login ChatGPT foi confirmado no aparelho; testes automatizados de provedores usam HTTP simulado.
 
 > O aplicativo não substitui acompanhamento médico, nutricional ou de educação física. Estimativas da IA podem estar erradas e precisam de revisão.
 

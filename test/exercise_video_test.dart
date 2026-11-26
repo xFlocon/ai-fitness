@@ -10,6 +10,47 @@ import 'core_test.dart' show workout;
 
 void main() {
   const id = 'abcdefghijk';
+  test('distingue cota diária do YouTube de acesso recusado', () async {
+    final dio = Dio();
+    addTearDown(dio.close);
+    var reason = 'quotaExceeded';
+    dio.interceptors.add(
+      InterceptorsWrapper(
+        onRequest: (request, handler) {
+          handler.reject(
+            DioException(
+              requestOptions: request,
+              response: Response(
+                requestOptions: request,
+                statusCode: 403,
+                data: {
+                  'error': {
+                    'errors': [
+                      {'reason': reason},
+                    ],
+                    'message': 'dado interno',
+                  },
+                },
+              ),
+            ),
+          );
+        },
+      ),
+    );
+    Future<void> check(String message) => expectLater(
+      findExerciseVideos(['dead bug'], 'test-key', client: dio),
+      throwsA(
+        predicate(
+          (error) =>
+              error.toString().startsWith(message) &&
+              !error.toString().contains('dado interno'),
+        ),
+      ),
+    );
+    await check('Cota diária do YouTube esgotada');
+    reason = 'accessNotConfigured';
+    await check('YouTube recusou a chave ou o acesso');
+  });
   test(
     'dead bug usa nome comum na segunda busca sem aceitar vídeo rejeitado',
     () async {

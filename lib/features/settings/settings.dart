@@ -279,7 +279,7 @@ class SettingsPage extends ConsumerWidget {
               children: [
                 const ListTile(
                   title: Text('AI Fitness'),
-                  subtitle: Text('1.5.8 • acompanhamento local; IA opcional'),
+                  subtitle: Text('1.5.10 • acompanhamento local; IA opcional'),
                 ),
                 ListTile(
                   title: const Text('Licenças de código aberto'),
@@ -287,7 +287,7 @@ class SettingsPage extends ConsumerWidget {
                   onTap: () => showLicensePage(
                     context: context,
                     applicationName: 'AI Fitness',
-                    applicationVersion: '1.5.8',
+                    applicationVersion: '1.5.10',
                   ),
                 ),
               ],
@@ -483,15 +483,29 @@ class _ProviderState extends ConsumerState<ProviderEditor> {
     }
   }
 
-  AiConfig config() {
+  AiConfig config(String op) {
+    final name = c[0].text.trim();
+    final model = c[3].text.trim();
+    if (op != 'models' && model.isEmpty) {
+      throw const FormatException(
+        'Informe o ID do modelo ou toque em Descobrir modelos.',
+      );
+    }
+    if (op == 'save' && name.isEmpty) {
+      throw const FormatException(
+        'Preencha Nome desta configuração antes de salvar.',
+      );
+    }
     final cfg = AiConfig(
       id: id,
-      name: text(c[0].text, max: 100),
+      name: name.isEmpty ? type : text(name, max: 100),
       type: type,
       baseUrl: text(c[1].text),
-      model: text(c[3].text, max: 200),
-      temperature: number(c[4].text, max: 2),
-      tokens: number(c[5].text, min: 128, max: 32768).round(),
+      model: op == 'models' ? '' : text(model, max: 200),
+      temperature: op == 'models' ? .4 : number(c[4].text, max: 2),
+      tokens: op == 'models'
+          ? 2048
+          : number(c[5].text, min: 128, max: 32768).round(),
       timeout: number(c[6].text, min: 5, max: 300).round(),
       images: images,
       tools: tools,
@@ -504,7 +518,7 @@ class _ProviderState extends ConsumerState<ProviderEditor> {
 
   Future<void> action(String op) async {
     try {
-      final cfg = config();
+      final cfg = config(op);
       if (op == 'save') {
         setState(() => busy = true);
         await const KeyVault().write(id, c[2].text.trim());

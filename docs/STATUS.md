@@ -114,3 +114,9 @@ Erros de cota/créditos agora são distintos de limite temporário de requisiç�
 
 - Busca bilíngue usa nomes comuns de tutoriais, sem exigir tradução literal. Até quatro candidatos por exercício; compilações e incompatibilidades explícitas ficam fora da seleção.
 - **83 testes aprovados**, análise sem problemas. APK **1.5.8+17** com assinatura verificada. SHA-256: `9d8f89dba1735d774417cd3e5611656ca7b60fcdb7289970cf13d8d5105ca166`.
+
+## Versão 1.5.10 — descoberta de modelos e avisos de vídeo
+
+- Descoberta de modelos não exige nome da configuração nem ID do modelo. Login ChatGPT e configurações de outros provedores continuam independentes.
+- Falhas na busca ou seleção de vídeos mantêm o treino disponível para revisão; aviso distingue cota do YouTube, acesso, conexão e falha de seleção pela IA.
+- **85 testes aprovados**, análise sem problemas. APK **1.5.10+19** com assinatura verificada. SHA-256: `3e8e8f5015696ad7e56dee8395881594323e8fe15c9570a145a56caaa37317a4`.

@@ -146,6 +146,30 @@ String _retryVideoQuery(String query, String? name) {
 }
 
 // Search uses only exercise terms. AI-supplied links and domains never enter the player.
+String youtubeSearchError(DioException error) {
+  final payload = error.response?.data;
+  final detail = payload is Map ? payload['error'] : null;
+  final reasons = detail is Map ? detail['errors'] : null;
+  final codes = reasons is List
+      ? reasons.whereType<Map>().map((item) => item['reason']).toSet()
+      : const <Object?>{};
+  if (codes.any(const {'quotaExceeded', 'dailyLimitExceeded'}.contains)) {
+    return 'Cota diária do YouTube esgotada. Confira a cota no Google Cloud ou aguarde a renovação.';
+  }
+  if (codes.any(
+    const {'keyInvalid', 'accessNotConfigured', 'ipRefererBlocked'}.contains,
+  )) {
+    return 'YouTube recusou a chave ou o acesso à API. Confira a chave, as restrições e se a YouTube Data API v3 está ativa.';
+  }
+  return switch (error.response?.statusCode) {
+    429 => 'YouTube limitou as buscas temporariamente. Aguarde antes de tentar novamente.',
+    401 || 403 => 'YouTube recusou a busca. Confira a chave e as permissões no Google Cloud.',
+    final int status when status >= 500 => 'YouTube indisponível no momento.',
+    final int status => 'YouTube recusou a busca (HTTP $status).',
+    _ => 'Não foi possível conectar ao YouTube. Confira a conexão.',
+  };
+}
+
 Future<List<String?>> findExerciseVideos(
   List<String> queries,
   String key, {
@@ -165,13 +189,20 @@ Future<List<String?>> findExerciseVideos(
         ),
       );
   Future<List<Json>> get(String endpoint, Json parameters) async {
-    final response = await dio.get<Json>(
-      'https://www.googleapis.com/youtube/v3/$endpoint',
-      queryParameters: parameters,
-      options: Options(headers: {'X-Goog-Api-Key': key}),
-      cancelToken: cancel,
-    );
-    return (response.data?['items'] as List? ?? []).whereType<Json>().toList();
+    try {
+      final response = await dio.get<Json>(
+        'https://www.googleapis.com/youtube/v3/$endpoint',
+        queryParameters: parameters,
+        options: Options(headers: {'X-Goog-Api-Key': key}),
+        cancelToken: cancel,
+      );
+      return (response.data?['items'] as List? ?? [])
+          .whereType<Json>()
+          .toList();
+    } on DioException catch (e) {
+      if (CancelToken.isCancel(e)) rethrow;
+      throw AiFailure(youtubeSearchError(e));
+    }
   }
 
   try {
@@ -193,7 +224,7 @@ Future<List<String?>> findExerciseVideos(
           'videoDuration': 'short',
           'videoEmbeddable': 'true',
           'safeSearch': 'strict',
-          'maxResults': 8,
+          'maxResults': 12,
         });
         return MapEntry(query, {
           for (final hit in hits)

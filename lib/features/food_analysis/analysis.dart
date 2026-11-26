@@ -53,7 +53,7 @@ Future<bool> requestAiConsent(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    '$description\n\nDestino: ${Uri.parse(config.baseUrl).host}\nModelo: ${config.model}\n\nO provedor pode armazenar e processar esses dados conforme sua própria política. Não é possível desfazer um envio.',
+                    '$description\n\nDestino: ${Uri.parse(config.baseUrl).host}${config.model.isEmpty ? '' : '\nModelo: ${config.model}'}\n\nO provedor pode armazenar e processar esses dados conforme sua própria política. Não é possível desfazer um envio.',
                   ),
                   CheckboxListTile(
                     contentPadding: EdgeInsets.zero,
