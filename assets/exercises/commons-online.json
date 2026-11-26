@@ -1,0 +1,5 @@
+[
+  {"id":"commons-04","en":"Push-up","pt":"Flexão de braços","gear":["body weight"],"group":"chest","target":"chest","pattern":"push_h","notes":[],"kind":"online-gif","reviewed":true,"file":"Pushups_wbs.gif","sha256":"bd2a03b96fe718e38c767e94a74e674c5bf7d8ed11df526c33ad7715d036e39a"},
+  {"id":"commons-05","en":"Lying leg raise","pt":"Elevação de pernas deitada","gear":["body weight"],"group":"waist","target":"abs","pattern":"core","notes":[],"kind":"online-gif","reviewed":true,"file":"Legraises_wbs.gif","sha256":"46d74baa89ac2d1094ecb85a7d0ae7c3ebd36458f06a14a003083cc59a938afd"},
+  {"id":"commons-06","en":"Skier jacks","pt":"Polichinelo alternado frente e trás","gear":["body weight"],"group":"cardio","target":"cardio","pattern":"cardio","notes":[],"kind":"online-gif","reviewed":true,"file":"Skierjacks_wbs.gif","sha256":"7b0c48d1f4dc07e434334f89ef1a1c0de4b0d9bb685421b5da33474fcde95747"}
+]

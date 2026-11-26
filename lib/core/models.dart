@@ -260,6 +260,12 @@ const workoutFocuses = [
 ];
 
 final _youtubeId = RegExp(r'^[A-Za-z0-9_-]{11}$');
+final _catalogId = RegExp(
+  r'^(clip-[a-z][0-9]{2}|flow-[0-9]{4}|commons-[0-9]{2}|wger-[0-9]{2})$',
+);
+
+String? exerciseCatalogId(Object? value) =>
+    value is String && _catalogId.hasMatch(value) ? value : null;
 
 String? youtubeVideoId(Object? value) {
   if (value is! String) return null;
@@ -385,6 +391,7 @@ Json validateWorkout(Json json, {bool generated = false}) {
         'safety': text(e['safety']),
         'alternatives': text(e['alternatives']),
         'videoId': ?videoId,
+        'catalogId': ?(generated ? null : exerciseCatalogId(e['catalogId'])),
       };
     }).toList(),
   };

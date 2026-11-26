@@ -4,7 +4,7 @@ Licença: [MIT](LICENSE).
 
 Aplicativo Android em Flutter para registrar alimentação, treino e evolução localmente, com IA opcional configurada pelo usuário. Registros locais não exigem conta ou assinatura. Sem telemetria. Idioma: português brasileiro.
 
-**Versão atual: 1.5.10.** Vídeos de exercícios no app, cardio por GPS, alimentação por foto/texto, treinos por dia e foco muscular, evolução corporal e chat multiprovedor. Login ChatGPT foi confirmado no aparelho; testes automatizados de provedores usam HTTP simulado.
+**Versão em desenvolvimento: 1.6.4.** Catálogo de exercícios com busca bilíngue, demonstrações locais e GIFs online, cardio por GPS, alimentação por foto/texto, treinos por dia e foco muscular, evolução corporal e chat multiprovedor.
 
 > O aplicativo não substitui acompanhamento médico, nutricional ou de educação física. Estimativas da IA podem estar erradas e precisam de revisão.
 
@@ -71,11 +71,15 @@ Rastreamento continua ao trocar de aba ou bloquear tela, via serviço Android. E
 
 ## Configurar provedores
 
-### Vídeos por exercício — versão 1.5.0
+### Demonstrações de exercícios offline
+
+Em **Treinos → Criar treino**, use **Adicionar do catálogo** para procurar por nome ou equipamento. Mídia local funciona sem internet. GIFs online são baixados do GitHub só ao tocar e reutilizados enquanto estiverem no cache. Nenhum deles exige chave. A IA seleciona IDs do catálogo sem receber arquivos. Links manuais e antigos são preservados. Veja [fontes, cobertura e licenças](docs/CATALOGO.md).
+
+### YouTube opcional
 
 No Google Cloud, ative a **YouTube Data API v3** e crie uma chave restrita a essa API. Cadastre em **Configurações → Vídeos de exercícios**. Chave fica no cofre local e não entra nas exportações. Campo vazio remove a chave e desativa a busca automática.
 
-Ao gerar treino, o app pesquisa vídeos públicos, incorporáveis e com menos de quatro minutos pelos nomes usados em português e inglês. Envia ao YouTube apenas os termos de busca. O app descarta compilações e incompatibilidades explícitas no título antes de a IA comparar até quatro candidatos por exercício pelas instruções, títulos e descrições, sem assistir aos vídeos. Uma busca extra pode completar candidatos ou tentar recuperar exercícios sem vídeo. Se ainda faltar demonstração, o editor preserva a sugestão: adicione o link ou remova o exercício antes de salvar. Links de treinos salvos não mudam automaticamente.
+Com chave configurada, o app pesquisa vídeos públicos, incorporáveis e com menos de quatro minutos apenas para os exercícios sem demonstração local. Envia ao YouTube só os termos em português e inglês. Descarta compilações e incompatibilidades explícitas antes de a IA comparar até quatro candidatos por exercício por título, descrição e instruções, sem assistir aos vídeos. Se ainda faltar demonstração, o editor preserva a sugestão: adicione o link ou remova o exercício antes de salvar. Links de treinos salvos não mudam automaticamente.
 
 Abra o exercício no editor ou na execução e toque **Carregar vídeo no app**. Player precisa de internet e se conecta ao YouTube somente após esse toque. Se faltar vídeo ou YouTube bloquear a reprodução, mantenha as instruções escritas, cole outro link no editor ou use **Abrir no YouTube**. Sem chave ou com cota esgotada, geração de treino continua funcionando.
 
