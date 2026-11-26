@@ -20,7 +20,9 @@ void main() {
         expect(catalog[id]?['kind'], 'online-gif');
         expect(hasDemonstration({'catalogId': id}, catalog), isTrue);
       }
-      expect(hasDemonstration({'catalogId': 'flow-0001'}, catalog), isFalse);
+      expect(verifiedMedia(catalog['flow-0001']), isFalse);
+      expect(hasDemonstration({'catalogId': 'flow-0001'}, catalog), isTrue);
+      expect(hasDemonstration({'catalogId': 'inexistente'}, catalog), isFalse);
       final flat = searchExerciseCatalog(
         catalog.values,
         'supino reto com halteres',
@@ -53,8 +55,7 @@ void main() {
         online.every(
           (e) =>
               e['still'] == null &&
-              hasDemonstration({'catalogId': e['id']}, catalog) ==
-                  (e['reviewed'] == true),
+              hasDemonstration({'catalogId': e['id']}, catalog),
         ),
         isTrue,
       );
@@ -105,7 +106,6 @@ void main() {
       }, allowed);
       expect(selected['name'], 'Dead bug');
       expect(hasDemonstration(selected, catalog), isTrue);
-      expect(hasDemonstration({'catalogId': 'flow-0001'}, catalog), isFalse);
       expect(hasDemonstration({'videoId': 'dQw4w9WgXcQ'}, catalog), isTrue);
       final record = {
         ...selected,
@@ -119,9 +119,17 @@ void main() {
       };
       final saved = validateWorkout({
         'name': 'Casa',
-        'exercises': [record],
+        'exercises': [
+          {...record, 'name': 'Abdominal curto', 'catalogId': 'flow-0001'},
+          record,
+          {...record, 'name': 'Sem mídia', 'catalogId': null},
+        ],
       });
-      expect((saved['exercises'] as List).single['catalogId'], 'flow-0276');
+      expect((saved['exercises'] as List).map((e) => e['catalogId']), [
+        'flow-0001',
+        'flow-0276',
+        null,
+      ]);
     },
   );
 

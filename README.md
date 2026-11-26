@@ -4,7 +4,7 @@ Licença: [MIT](LICENSE).
 
 Aplicativo Android em Flutter para registrar alimentação, treino e evolução localmente, com IA opcional configurada pelo usuário. Registros locais não exigem conta ou assinatura. Sem telemetria. Idioma: português brasileiro.
 
-**Versão em desenvolvimento: 1.6.4.** Catálogo de exercícios com busca bilíngue, demonstrações locais e GIFs online, cardio por GPS, alimentação por foto/texto, treinos por dia e foco muscular, evolução corporal e chat multiprovedor.
+**Versão em desenvolvimento: 1.6.5.** Catálogo de exercícios com busca bilíngue, demonstrações locais e GIFs online, cardio por GPS, alimentação por foto/texto, treinos por dia e foco muscular, evolução corporal e chat multiprovedor.
 
 > O aplicativo não substitui acompanhamento médico, nutricional ou de educação física. Estimativas da IA podem estar erradas e precisam de revisão.
 

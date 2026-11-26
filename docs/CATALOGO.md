@@ -2,7 +2,7 @@
 
 1.388 registros: 1.324 do Flow, 57 do Workout Free Videos, seis do Wikimedia Commons e um do wger. Há mídia local em **66 registros**: 57 MP4, oito GIFs e um par de ilustrações. Vídeos e GIFs locais também têm miniaturas estáticas. Alguns registros de fontes diferentes descrevem o mesmo movimento. Busca consulta nomes em português e inglês, equipamento e glossário de sinônimos, sem trocar o ID da variante. Cobertura de mídia não é cobertura integral do catálogo.
 
-Todos os **1.257 GIFs disponíveis do Flow** ficam [online](https://github.com/xFlocon/ai-fitness/tree/catalog-media-v2), incluindo cinco com versão offline. O app aceita 26 GIFs do Flow com revisão visual: 24 do lote publicado e dois revisados na versão 1.6.4. Os demais têm aviso e não substituem uma demonstração aceita para salvar sugestão. Sem busca do YouTube configurada, a IA só recebe candidatos com demonstração aceita. O primeiro acesso usa GitHub; o app valida o SHA-256 e guarda o GIF no cache do Android. Só o manifesto acompanha o APK. Gere o catálogo online com `python3 scripts/export_online_gifs.py CAMINHO_FLOW PASTA_SAIDA`, publique créditos e arquivos, e atualize manifesto e revisão no app. A hospedagem não tem garantia de tráfego ilimitado.
+Todos os **1.257 GIFs disponíveis do Flow** ficam [online](https://github.com/xFlocon/ai-fitness/tree/catalog-media-v2), incluindo cinco com versão offline. O app identifica os 26 GIFs do Flow com revisão visual; os demais mantêm o aviso de ilustração não revisada. Falta de mídia não bloqueia o salvamento. O primeiro acesso usa GitHub; o app valida o SHA-256 e guarda o GIF no cache do Android. Só o manifesto acompanha o APK. Gere o catálogo online com `python3 scripts/export_online_gifs.py CAMINHO_FLOW PASTA_SAIDA`, publique créditos e arquivos, e atualize manifesto e revisão no app. A hospedagem não tem garantia de tráfego ilimitado.
 
 ## Fontes e licenças
 
@@ -21,4 +21,4 @@ Clone as revisões acima. Baixe os três GIFs originais do Commons com os nomes 
 python3 scripts/import_exercise_catalog.py CAMINHO_CLIPS CAMINHO_FLOW CAMINHO_COMMONS CAMINHO_WGER
 ```
 
-Nenhum servidor adicional é necessário. Ao gerar treino, o app envia até 24 registros resumidos ao provedor de IA após consentimento; não envia arquivos de mídia. A busca opcional no YouTube atende apenas os exercícios sem demonstração local. Modelos remotos ainda precisam de internet e podem consumir cota do próprio provedor.
+Nenhum servidor adicional é necessário. Ao gerar treino, o app envia até 24 registros resumidos ao provedor de IA após consentimento; não envia arquivos de mídia. A busca opcional no YouTube atende apenas exercícios sem mídia no catálogo. Modelos remotos ainda precisam de internet e podem consumir cota do próprio provedor.

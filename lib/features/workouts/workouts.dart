@@ -228,10 +228,8 @@ class _WorkoutEditorState extends ConsumerState<WorkoutEditor> {
   final Set<int> days = {};
   final Set<String> focus = {};
   final Set<String> equipment = {'body weight'};
-  Map<String, Json> catalog = {};
   List<Json> exercises = [];
   bool busy = false;
-  bool requireVideos = false;
   CancelToken? cancel;
   @override
   void initState() {
@@ -372,18 +370,16 @@ class _WorkoutEditorState extends ConsumerState<WorkoutEditor> {
       }
       final cfg = await taskConfig(store, 'planning');
       final videoKey = await const KeyVault().read(videoKeySlot);
-      catalog = await loadExerciseCatalog();
+      final catalog = await loadExerciseCatalog();
       final candidates = workoutCandidates(
-        videoKey.isEmpty ? catalog.values.where(verifiedMedia) : catalog.values,
+        catalog.values,
         focus,
         equipment,
         '${name.text} ${preferences.text}',
       );
       if (candidates.isEmpty) {
-        throw AiFailure(
-          videoKey.isEmpty
-              ? 'Nenhum exercício com demonstração revisada combina com foco e equipamentos. Ajuste os filtros ou configure a busca do YouTube.'
-              : 'Nenhum exercício combina com foco e equipamentos. Ajuste os filtros.',
+        throw const AiFailure(
+          'Nenhum exercício combina com foco e equipamentos. Ajuste os filtros.',
         );
       }
       final offered = {for (final e in candidates) e['id'] as String: e};
@@ -441,10 +437,10 @@ class _WorkoutEditorState extends ConsumerState<WorkoutEditor> {
                     e['en'],
                     catalogGear(e),
                     e['target'],
-                    !verifiedMedia(e)
+                    e['kind'] == null
                         ? 'nenhuma'
                         : e['kind'] == 'online-gif'
-                        ? 'online'
+                        ? (verifiedMedia(e) ? 'online' : 'online não revisada')
                         : 'offline',
                     (e['notes'] as List).firstOrNull,
                   ],
@@ -574,10 +570,10 @@ class _WorkoutEditorState extends ConsumerState<WorkoutEditor> {
           .where((e) => !hasDemonstration(e, catalog))
           .toList();
       videoNotice +=
-          '${allItems.length - missing.length}/${allItems.length} exercícios com demonstração aceita.';
+          '${allItems.length - missing.length}/${allItems.length} exercícios com mídia.';
       if (missing.isNotEmpty) {
         videoNotice +=
-            '\nSem demonstração aceita: ${missing.map((e) => e['name']).join(', ')}. GIFs não revisados podem ser abertos, mas não contam para salvar a sugestão. Adicione links ou substitua esses exercícios.';
+            '\nSem mídia: ${missing.map((e) => e['name']).join(', ')}. Você pode salvar o treino e adicionar links depois.';
       }
       if (!mounted) return;
       if (await confirm(
@@ -592,7 +588,6 @@ class _WorkoutEditorState extends ConsumerState<WorkoutEditor> {
               name.text = proposed['name'] as String;
             }
             exercises = (proposed['exercises'] as List).cast<Json>();
-            requireVideos = true;
           });
         }
       }
@@ -780,26 +775,11 @@ class _WorkoutEditorState extends ConsumerState<WorkoutEditor> {
             child: const Text('Propor progressão pelas últimas sessões'),
           ),
         const SizedBox(height: 20),
-        if (requireVideos &&
-            exercises.any((e) => !hasDemonstration(e, catalog)))
-          const Text(
-            'GIF online não revisado não conta para salvar. Se faltar uma demonstração aceita, adicione um link ou substitua o exercício.',
-          ),
         FilledButton(
           onPressed: busy
               ? null
               : () async {
                   try {
-                    if (requireVideos) {
-                      final missing = exercises.where(
-                        (e) => !hasDemonstration(e, catalog),
-                      );
-                      if (missing.isNotEmpty) {
-                        throw FormatException(
-                          'Adicione uma demonstração ou remova: ${missing.map((e) => e['name']).join(', ')}.',
-                        );
-                      }
-                    }
                     final j = validateWorkout({
                       'name': name.text.trim().isEmpty
                           ? (focus.isEmpty

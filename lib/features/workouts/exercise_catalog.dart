@@ -255,7 +255,11 @@ List<Json> workoutCandidates(
     ranked.add((
       e,
       terms.where(words.contains).length * 8 +
-          (verifiedMedia(e) ? 4 : 0) +
+          (verifiedMedia(e)
+              ? 4
+              : e['kind'] != null
+              ? 2
+              : 0) +
           (words.contains('inclinado') &&
                   !terms.contains('inclinado') &&
                   terms.contains('reto')
@@ -302,7 +306,7 @@ Json selectedCatalogExercise(Json proposal, Map<String, Json> offered) {
 
 bool hasDemonstration(Json e, Map<String, Json> catalog) =>
     youtubeVideoId(e['videoId']) != null ||
-    verifiedMedia(catalog[e['catalogId']]);
+    catalog[e['catalogId']]?['kind'] != null;
 
 bool verifiedMedia(Json? entry) =>
     entry?['kind'] != null &&
