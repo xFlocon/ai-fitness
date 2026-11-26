@@ -1,0 +1,176 @@
+{
+  "flow-0274": {
+    "pt": "Abdominal curto no chão",
+    "gear": [
+      "body weight"
+    ],
+    "sha256": "4363dc942fda66d68335625e9728b2c7d5d84c3875d08507f46a5234a80041c0"
+  },
+  "flow-0872": {
+    "pt": "Abdominal reverso",
+    "gear": [
+      "body weight"
+    ],
+    "sha256": "be2c951f3f4cd50f66bcc12b3b15660246d1ef25aa0344ac99e6e08ea87b3c8c"
+  },
+  "flow-0630": {
+    "pt": "Escalador no chão",
+    "gear": [
+      "body weight"
+    ],
+    "sha256": "19ca5e7467cf9417e9d5e8be8e5fc6bf8180cd4c5a3f033d396dabe975b50e1a"
+  },
+  "flow-0710": {
+    "pt": "Abdução de quadril em pé",
+    "gear": [
+      "body weight"
+    ],
+    "sha256": "c7d0ec20ed9cfdb9838f7a1f0e508db47985a3214af1f2ea05c860ee78cf3d7d"
+  },
+  "flow-1004": {
+    "pt": "Agachamento com faixa elástica",
+    "gear": [
+      "band"
+    ],
+    "sha256": "f636f10f7b2c6db075dcc433f65e3b149f2f4c94578adfbbec89ceefcc94304f"
+  },
+  "flow-3006": {
+    "pt": "Abdução de quadril sentado com elástico",
+    "gear": [
+      "chair",
+      "resistance band"
+    ],
+    "sha256": "469910a28555f0742d02dd23c09f3c4f4968fd712e9847e3545b9c5c6d44f199"
+  },
+  "flow-0336": {
+    "pt": "Avanço à frente com halteres",
+    "gear": [
+      "dumbbell"
+    ],
+    "sha256": "a7508df7bb0e875ff229b9452d91c807cb32d2562d664cdc9c40784a5be93c2e"
+  },
+  "flow-0413": {
+    "pt": "Agachamento com halteres",
+    "gear": [
+      "dumbbell"
+    ],
+    "sha256": "35210eb0039321e1c5748169829e574e305d1718cc08d4ba8f22c2689e8f2378"
+  },
+  "flow-0417": {
+    "pt": "Elevação de panturrilhas em pé com halteres",
+    "gear": [
+      "dumbbell"
+    ],
+    "sha256": "b4aab3fbf36c70772aaec9d5c48bbe77b3dd95efa734b30d6f4b5d4319d015d2"
+  },
+  "flow-0025": {
+    "pt": "Supino reto com barra",
+    "gear": [
+      "barbell",
+      "bench"
+    ],
+    "sha256": "54165cd0bc58f034f59336d4f5927adc908cf58762a4b39da8b425c9af1be40f"
+  },
+  "flow-0212": {
+    "pt": "Abdominal sentado na polia",
+    "gear": [
+      "bench",
+      "cable"
+    ],
+    "sha256": "7331e29deca8bf507beee324093baf49e9fe2019af95913e3e50941fa30c3a0b"
+  },
+  "flow-0585": {
+    "pt": "Cadeira extensora",
+    "gear": [
+      "leverage machine"
+    ],
+    "sha256": "586283fc6b2c311b9d2d739f073a9665f742461a6de55e24cee8355b55c5516c"
+  },
+  "flow-0597": {
+    "pt": "Cadeira abdutora",
+    "gear": [
+      "leverage machine"
+    ],
+    "sha256": "e33558ec96d99556830b09cd8bf31c905cabe20e0657ff3b698650005ae10d72"
+  },
+  "flow-1463": {
+    "pt": "Leg press 45 graus",
+    "gear": [
+      "sled machine"
+    ],
+    "sha256": "c57efaf49f3c96abbfcbf91b6fe9445b87ad6efbd7848233531509982071f935"
+  },
+  "flow-3636": {
+    "pt": "Elevação de joelho com apoio na parede",
+    "gear": [
+      "body weight",
+      "wall"
+    ],
+    "sha256": "f453730afc627b3e7249abc0789012fa5ae2f29b3fd4e465062f38d53a752688"
+  },
+  "flow-1490": {
+    "pt": "Elevação de panturrilhas no degrau com apoio",
+    "gear": [
+      "body weight",
+      "step"
+    ],
+    "sha256": "ea59adaaccaf7225fdd5a0c397492e63b59d7d6a50f4af83c71ffacc6c118247"
+  },
+  "flow-0293": {
+    "pt": "Remada curvada com halteres",
+    "gear": [
+      "dumbbell"
+    ],
+    "sha256": "bfd576813d5655146c0abf525519f114a1fcdeccc1c941206a80565ab0e2e562"
+  },
+  "flow-0313": {
+    "pt": "Rosca martelo em pé com halteres",
+    "gear": [
+      "dumbbell"
+    ],
+    "sha256": "f2dbe0f9750aaa0cac60309469737f0b08b856e8a61fee6e34932d4300736824"
+  },
+  "flow-0383": {
+    "pt": "Crucifixo inverso inclinado com halteres",
+    "gear": [
+      "dumbbell"
+    ],
+    "sha256": "d95011be31da40aa802780440d4c9cfe4891e6e518052a7c1063b97642bd0150"
+  },
+  "flow-0405": {
+    "pt": "Desenvolvimento sentado com halteres",
+    "gear": [
+      "bench",
+      "dumbbell"
+    ],
+    "sha256": "fa229b4c4248f67168e745a1a30f329f786ed0bdeb83e8a62d67e8fd22ff3479"
+  },
+  "flow-0534": {
+    "pt": "Agachamento goblet com kettlebell",
+    "gear": [
+      "kettlebell"
+    ],
+    "sha256": "f6b348890c14cc390b84d98d2f480265f5c39200ad7076db94f558dc2b513486"
+  },
+  "flow-0586": {
+    "pt": "Mesa flexora",
+    "gear": [
+      "leverage machine"
+    ],
+    "sha256": "082975cdd018285ee533cba5beb2aa4443cd05f3b48748d63d7bf383362380cf"
+  },
+  "flow-0599": {
+    "pt": "Cadeira flexora",
+    "gear": [
+      "leverage machine"
+    ],
+    "sha256": "3f24226a0bb4501445d0fa33b8729c6d24c26928f0c8fab8a62dfd015fab5d7c"
+  },
+  "flow-3294": {
+    "pt": "Flexão arqueiro",
+    "gear": [
+      "body weight"
+    ],
+    "sha256": "51dc7d566b920aef01152191a28b179331cf8979fdb6c6b2350d24668be4037d"
+  }
+}
