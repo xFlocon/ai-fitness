@@ -7,7 +7,6 @@ import '../../core/models.dart';
 import '../../core/store.dart';
 import '../../shared/ui.dart';
 import '../onboarding/onboarding.dart';
-import '../statistics/statistics.dart';
 
 class ProfilePage extends ConsumerWidget {
   const ProfilePage({super.key});
@@ -118,12 +117,7 @@ class ProfilePage extends ConsumerWidget {
                     leading: const Icon(Icons.bar_chart),
                     title: const Text('Estatísticas'),
                     trailing: const Icon(Icons.chevron_right),
-                    onTap: () => Navigator.push(
-                      context,
-                      MaterialPageRoute<void>(
-                        builder: (_) => const StatisticsPage(),
-                      ),
-                    ),
+                    onTap: () => context.push('/statistics'),
                   ),
                 ],
               ),

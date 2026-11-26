@@ -19,7 +19,7 @@ class PageBody extends StatelessWidget {
     child: ConstrainedBox(
       constraints: const BoxConstraints(maxWidth: 1000),
       child: ListView(
-        padding: const EdgeInsets.fromLTRB(22, 20, 22, 110),
+        padding: const EdgeInsets.fromLTRB(20, 20, 20, 96),
         children: [
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -40,7 +40,7 @@ class PageBody extends StatelessWidget {
                     const SizedBox(height: 8),
                     Text(
                       title,
-                      style: Theme.of(context).textTheme.headlineLarge
+                      style: Theme.of(context).textTheme.headlineMedium
                           ?.copyWith(
                             fontWeight: FontWeight.w800,
                             letterSpacing: -1,
@@ -49,7 +49,7 @@ class PageBody extends StatelessWidget {
                   ],
                 ),
               ),
-              ?action,
+              if (action != null) ...[const SizedBox(width: 8), action!],
             ],
           ),
           const SizedBox(height: 24),

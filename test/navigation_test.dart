@@ -47,6 +47,15 @@ void main() {
     }, id: 'profile');
     await store.put('settings', {'reduceMotion': true}, id: 'appearance');
     final now = DateTime.now();
+    for (final (daysAgo, load) in [(2, 20), (1, 35)]) {
+      await store.put('session', {
+        'date': now.subtract(Duration(days: daysAgo)).toIso8601String(),
+        'finished': true,
+        'sets': [
+          {'load': load, 'index': 0, 'exercise': 'Exercício teste'},
+        ],
+      });
+    }
     for (final (daysAgo, weight) in [(2, 85), (1, 83)]) {
       await store.put('weight', {
         'date': now.subtract(Duration(days: daysAgo)).toIso8601String(),
@@ -75,6 +84,37 @@ void main() {
       expect(find.text(pair.$2), findsOneWidget);
       expect(tester.takeException(), isNull);
     }
+    final statistics = find.text('Estatísticas');
+    await tester.scrollUntilVisible(
+      statistics,
+      200,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.pumpAndSettle();
+    await tester.ensureVisible(statistics);
+    await tester.pumpAndSettle();
+    await tester.tap(statistics);
+    await tester.pumpAndSettle();
+    expect(find.byType(NavigationBar), findsNothing);
+    expect(find.text('Ainda sem registros neste período'), findsOneWidget);
+    await tester.tap(find.byType(DropdownButtonFormField<String>));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Carga máxima').last);
+    await tester.pumpAndSettle();
+    expect(find.text('35,0 kg'), findsOneWidget);
+    expect(
+      tester.widget<BarChart>(find.byType(BarChart)).data.barGroups,
+      hasLength(7),
+    );
+    await tester.tap(find.text('1 ano'));
+    await tester.pumpAndSettle();
+    expect(
+      tester.widget<BarChart>(find.byType(BarChart)).data.barGroups,
+      hasLength(13),
+    );
+    expect(find.text('35,0 kg'), findsOneWidget);
+    Navigator.of(tester.element(find.text('Estatísticas'))).pop();
+    await tester.pumpAndSettle();
     await tester.tap(find.text('Início').last);
     await tester.pumpAndSettle();
     final cardTitle = find.text('Sua evolução');

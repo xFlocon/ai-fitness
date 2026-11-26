@@ -13,6 +13,7 @@ import '../features/profile/profile.dart';
 import '../features/settings/settings.dart';
 import '../features/body_progress/progress.dart';
 import '../features/cardio/cardio.dart';
+import '../features/statistics/statistics.dart';
 
 final appearanceProvider = FutureProvider((ref) {
   ref.watch(changesProvider);
@@ -57,6 +58,7 @@ final routerProvider = Provider<GoRouter>((ref) {
             ProviderEditor(id: state.uri.queryParameters['id']),
       ),
       GoRoute(path: '/progress', builder: (_, _) => const ProgressPage()),
+      GoRoute(path: '/statistics', builder: (_, _) => const StatisticsPage()),
       GoRoute(
         path: '/workout',
         builder: (_, state) =>
@@ -97,7 +99,13 @@ class FitnessApp extends ConsumerWidget {
             ? const Color(0xff0b0f14)
             : const Color(0xfff7f9fc),
         visualDensity: VisualDensity.standard,
+        appBarTheme: AppBarTheme(
+          backgroundColor: colors.surface,
+          foregroundColor: colors.onSurface,
+          centerTitle: false,
+        ),
         cardTheme: CardThemeData(
+          color: colors.surface,
           elevation: 0,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(26),
@@ -124,6 +132,18 @@ class FitnessApp extends ConsumerWidget {
         navigationBarTheme: NavigationBarThemeData(
           backgroundColor: colors.surface,
           indicatorColor: colors.primary.withValues(alpha: .16),
+          labelTextStyle: WidgetStateProperty.resolveWith(
+            (states) => TextStyle(
+              fontSize: 10,
+              letterSpacing: 0,
+              fontWeight: states.contains(WidgetState.selected)
+                  ? FontWeight.w700
+                  : FontWeight.w500,
+              color: states.contains(WidgetState.selected)
+                  ? colors.onSurface
+                  : colors.onSurfaceVariant,
+            ),
+          ),
         ),
       );
     }
@@ -211,7 +231,7 @@ class HomeShell extends StatelessWidget {
           ),
         ],
       ),
-      floatingActionButton: location == '/chat' || location == '/cardio'
+      floatingActionButton: location != '/' && location != '/nutrition'
           ? null
           : FloatingActionButton(
               tooltip: 'Registrar refeição',
