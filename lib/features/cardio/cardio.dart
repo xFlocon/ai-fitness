@@ -157,17 +157,21 @@ class _CardioPageState extends ConsumerState<CardioPage> {
   }
 
   String label(Json data) => data['mode'] == 'bike' ? 'Pedalada' : 'Caminhada';
+  IconData modeIcon(Json data) =>
+      data['mode'] == 'bike' ? Icons.directions_bike : Icons.directions_walk;
+
   String decimal(num n, int digits) =>
       n.toStringAsFixed(digits).replaceAll('.', ',');
+
+  String elapsed(int seconds) => [
+    seconds ~/ 3600,
+    seconds ~/ 60 % 60,
+    seconds % 60,
+  ].map((n) => '$n'.padLeft(2, '0')).join(':');
 
   String metrics(Json data) {
     final seconds = data['seconds'] as int;
     final meters = data['meters'] as num;
-    final time = [
-      seconds ~/ 3600,
-      seconds ~/ 60 % 60,
-      seconds % 60,
-    ].map((n) => '$n'.padLeft(2, '0')).join(':');
     final distance = data['fixed'] == true
         ? '${decimal(meters / 1000, 2)} km'
         : 'distância indisponível';
@@ -177,8 +181,75 @@ class _CardioPageState extends ConsumerState<CardioPage> {
     final steps = data['mode'] == 'walk'
         ? ' • ${data['steps'] == null ? 'passos indisponíveis' : '${data['steps']} passos'}'
         : '';
-    return '$time • $distance$average$steps';
+    return '${elapsed(seconds)} • $distance$average$steps';
   }
+
+  Widget liveMetrics(BuildContext context, Json state) {
+    final theme = Theme.of(context).textTheme;
+    return Panel(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Wrap(
+            spacing: 8,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            children: [
+              Icon(modeIcon(state)),
+              Text(label(state), style: theme.titleLarge),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Text(elapsed(state['seconds'] as int), style: theme.displaySmall),
+          const Text('Tempo de atividade'),
+          const SizedBox(height: 16),
+          Wrap(
+            spacing: 24,
+            runSpacing: 12,
+            children: [
+              _metric(
+                theme,
+                'Distância',
+                state['fixed'] == true
+                    ? '${decimal((state['meters'] as num) / 1000, 2)} km'
+                    : '—',
+              ),
+              _metric(
+                theme,
+                'Velocidade',
+                state['gps'] == true && state['speed'] is num
+                    ? '${decimal(state['speed'] as num, 1)} km/h'
+                    : '—',
+              ),
+              if (state['mode'] == 'walk')
+                _metric(
+                  theme,
+                  'Passos',
+                  state['steps'] == null ? '—' : '${state['steps']} passos',
+                ),
+            ],
+          ),
+          if (state['ended'] == true || state['gps'] != true) ...[
+            const SizedBox(height: 12),
+            Text(
+              state['ended'] == true
+                  ? state['error'] as String? ??
+                        'Atividade encerrada. Salve o resumo.'
+                  : 'Buscando sinal GPS. Aguarde em área aberta.',
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _metric(TextTheme theme, String name, String value) => Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    mainAxisSize: MainAxisSize.min,
+    children: [
+      Text(value, style: theme.titleMedium),
+      Text(name),
+    ],
+  );
 
   String calories(Json data) {
     final kcal = data['kcal'] as num?;
@@ -197,36 +268,31 @@ class _CardioPageState extends ConsumerState<CardioPage> {
       children: [
         if (error != null) Text(error!),
         if (state == null) ...[
-          const Text(
-            'Permita localização precisa para medir distância e velocidade. Passos na caminhada dependem do sensor e da permissão de atividade física. Rastreamento pode continuar com a tela bloqueada; não feche o app pela lista de recentes. Nenhuma coordenada é salva ou enviada.',
-          ),
-          const SizedBox(height: 12),
           FilledButton.icon(
             onPressed: ready && !busy ? () => run('walk') : null,
             icon: const Icon(Icons.directions_walk),
             label: const Text('Iniciar caminhada'),
           ),
           const SizedBox(height: 8),
-          FilledButton.icon(
+          FilledButton.tonalIcon(
             onPressed: ready && !busy ? () => run('bike') : null,
             icon: const Icon(Icons.directions_bike),
             label: const Text('Iniciar pedalada'),
           ),
+          const SizedBox(height: 8),
+          const ExpansionTile(
+            tilePadding: EdgeInsets.zero,
+            leading: Icon(Icons.info_outline),
+            title: Text('GPS, passos e privacidade'),
+            expandedCrossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Use localização precisa para medir distância e velocidade. Passos dependem do sensor e da permissão de atividade física. O rastreamento pode continuar com a tela bloqueada; não feche o app pela lista de recentes. Nenhuma coordenada é salva ou enviada.',
+              ),
+            ],
+          ),
         ] else ...[
-          Text(label(state), style: Theme.of(context).textTheme.titleLarge),
-          Text(metrics(state)),
-          if (state['ended'] == true)
-            Text(
-              state['error'] as String? ??
-                  'Atividade encerrada. Salve o resumo.',
-            )
-          else if (state['gps'] != true)
-            const Text(
-              'Buscando sinal GPS. Em área aberta, aguarde antes de começar a se mover.',
-            )
-          else if (state['speed'] case final num speed)
-            Text('Velocidade atual: ${decimal(speed, 1)} km/h'),
-          const SizedBox(height: 12),
+          liveMetrics(context, state),
           FilledButton(
             onPressed: busy ? null : () => run(),
             child: Text(
@@ -263,13 +329,13 @@ class _CardioPageState extends ConsumerState<CardioPage> {
                 ? [const Text('Nenhuma atividade registrada.')]
                 : [
                     for (final record in records)
-                      ListTile(
-                        contentPadding: EdgeInsets.zero,
-                        title: Text(
-                          '${label(record.data)} • ${MaterialLocalizations.of(context).formatShortDate(DateTime.parse(record.data['date'] as String))}',
-                        ),
-                        subtitle: Text(
-                          '${metrics(record.data)}\n${calories(record.data)}',
+                      Card(
+                        child: ListTile(
+                          leading: Icon(modeIcon(record.data)),
+                          title: Text(label(record.data)),
+                          subtitle: Text(
+                            '${MaterialLocalizations.of(context).formatShortDate(DateTime.parse(record.data['date'] as String))}\n${metrics(record.data)}\n${calories(record.data)}',
+                          ),
                         ),
                       ),
                   ],

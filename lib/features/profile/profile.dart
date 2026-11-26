@@ -78,7 +78,7 @@ class ProfilePage extends ConsumerWidget {
                   Text(
                     targets == null
                         ? 'Sem cálculo automático. Acompanhe hábitos e procure orientação profissional.'
-                        : 'Estimativa Mifflin-St Jeor\nGasto diário: ${targets.expenditure.round()} kcal\nMeta inicial: ${targets.macros.kcal.round()} kcal\nP ${targets.macros.protein.round()} g • C ${targets.macros.carbs.round()} g • G ${targets.macros.fat.round()} g',
+                        : 'Estimativa Mifflin-St Jeor\nGasto diário: ${targets.expenditure.round()} kcal\nMeta inicial: ${targets.macros.kcal.round()} kcal\nP ${targets.macros.protein.round()} g • C ${targets.macros.carbs.round()} g • G ${targets.macros.fat.round()} g\nFibras: ${targets.macros.fiber.round()} g/dia (14 g por 1.000 kcal).',
                   ),
                   const SizedBox(height: 12),
                   const Text(
@@ -142,7 +142,7 @@ class TargetEditor extends ConsumerStatefulWidget {
 }
 
 class _TargetState extends ConsumerState<TargetEditor> {
-  final c = List.generate(4, (_) => TextEditingController());
+  final c = List.generate(5, (_) => TextEditingController());
   @override
   void initState() {
     super.initState();
@@ -154,10 +154,18 @@ class _TargetState extends ConsumerState<TargetEditor> {
     final p = await store.get('profile');
     final j = await store.get('targets');
     if (!mounted || p == null) return;
-    final macros = j == null ? calculateTargets(p)?.macros : Macros.fromJson(j);
+    final macros = j == null
+        ? calculateTargets(p)?.macros
+        : Macros.fromTargets(j);
     if (macros != null) {
-      final values = [macros.kcal, macros.protein, macros.carbs, macros.fat];
-      for (var i = 0; i < 4; i++) {
+      final values = [
+        macros.kcal,
+        macros.protein,
+        macros.carbs,
+        macros.fat,
+        macros.fiber,
+      ];
+      for (var i = 0; i < c.length; i++) {
         c[i].text = values[i].round().toString();
       }
     }
@@ -183,6 +191,7 @@ class _TargetState extends ConsumerState<TargetEditor> {
           'Proteínas (g)',
           'Carboidratos (g)',
           'Gorduras (g)',
+          'Fibras por dia (g)',
         ].indexed.map((e) => field(c[e.$1], e.$2, numeric: true)),
         FilledButton(
           onPressed: () async {
@@ -197,11 +206,15 @@ class _TargetState extends ConsumerState<TargetEditor> {
                 );
               }
               final minimum = p['formulaSex'] == 'male' ? 1500.0 : 1200.0;
+              final kcal = number(c[0].text, min: minimum, max: 6500);
               final macros = Macros(
-                number(c[0].text, min: minimum, max: 6500),
+                kcal,
                 number(c[1].text, max: 400),
                 number(c[2].text, max: 1000),
                 number(c[3].text, min: 20, max: 300),
+                c[4].text.trim().isEmpty
+                    ? fiberGoal(kcal)
+                    : number(c[4].text, min: 1, max: 100),
               );
               final energy =
                   macros.protein * 4 + macros.carbs * 4 + macros.fat * 9;

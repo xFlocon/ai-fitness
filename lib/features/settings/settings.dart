@@ -279,7 +279,7 @@ class SettingsPage extends ConsumerWidget {
               children: [
                 const ListTile(
                   title: Text('AI Fitness'),
-                  subtitle: Text('1.6.5 • acompanhamento local; IA opcional'),
+                  subtitle: Text('1.6.6 • acompanhamento local; IA opcional'),
                 ),
                 ListTile(
                   title: const Text('Licenças de código aberto'),
@@ -287,7 +287,7 @@ class SettingsPage extends ConsumerWidget {
                   onTap: () => showLicensePage(
                     context: context,
                     applicationName: 'AI Fitness',
-                    applicationVersion: '1.6.5',
+                    applicationVersion: '1.6.6',
                   ),
                 ),
               ],

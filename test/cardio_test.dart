@@ -65,8 +65,11 @@ void main() {
       ),
     );
     await tester.pumpAndSettle();
+    expect(find.text('GPS, passos e privacidade'), findsOneWidget);
     await tester.tap(find.text('Iniciar caminhada'));
     await tester.pumpAndSettle();
+    expect(find.text('01:00:00'), findsOneWidget);
+    expect(find.text('5,00 km'), findsOneWidget);
     expect(find.textContaining('5,1 km/h'), findsOneWidget);
     expect(find.textContaining('6800 passos'), findsOneWidget);
     expect(await store.list('cardio'), isEmpty);

@@ -53,6 +53,8 @@ void main() {
     );
     await tester.pumpAndSettle();
     expect(find.text('ENERGIA DO DIA'), findsOneWidget);
+    expect(find.text('Fibras'), findsOneWidget);
+    expect(find.text('0 / 26 g'), findsOneWidget);
     for (final pair in [
       ('Alimentação', 'Nutrir é cuidar.'),
       ('Treinos', 'Seu corpo em movimento.'),

@@ -35,7 +35,7 @@ class DashboardPage extends ConsumerWidget {
             ? null
             : manual == null
             ? calculated?.macros
-            : Macros.fromJson(manual);
+            : Macros.fromTargets(manual);
         final hour = DateTime.now().hour;
         return PageBody(
           title:
@@ -173,6 +173,12 @@ class DashboardPage extends ConsumerWidget {
                     target?.fat,
                     const Color(0xffffc67a),
                   ),
+                  MacroBar(
+                    'Fibras',
+                    consumed.fiber,
+                    target?.fiber,
+                    Theme.of(context).colorScheme.tertiary,
+                  ),
                 ],
               ),
             ),
@@ -280,7 +286,9 @@ class MacroBar extends StatelessWidget {
         ),
         const SizedBox(height: 8),
         LinearProgressIndicator(
-          value: target == null ? 0 : (value / target!).clamp(0, 1),
+          value: target == null || target! <= 0
+              ? 0
+              : (value / target!).clamp(0, 1),
           minHeight: 7,
           color: color,
           backgroundColor: color.withValues(alpha: .12),

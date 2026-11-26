@@ -54,6 +54,11 @@ class Macros {
     number(json['fat']),
     number(json['fiber'] ?? 0),
   );
+  factory Macros.fromTargets(Json json) => Macros.fromJson({
+    ...json,
+    if (json['fiber'] == null || json['fiber'] == 0)
+      'fiber': fiberGoal(number(json['kcal'])),
+  });
   Json toJson() => {
     'kcal': kcal,
     'protein': protein,
@@ -153,6 +158,8 @@ class NutritionTargets {
   const NutritionTargets(this.expenditure, this.macros);
 }
 
+double fiberGoal(double kcal) => (kcal * 14 / 1000).roundToDouble();
+
 NutritionTargets? calculateTargets(Json profile) {
   final age = number(profile['age'], min: 1, max: 120);
   if (age < 18 || profile['clinical'] == true || profile['pregnant'] == true) {
@@ -190,6 +197,7 @@ NutritionTargets? calculateTargets(Json profile) {
       protein,
       (kcal - protein * 4 - fat * 9).clamp(0, kcal) / 4,
       fat,
+      fiberGoal(kcal),
     ),
   );
 }

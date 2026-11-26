@@ -51,6 +51,7 @@ void main() {
   });
   test('Mifflin-St Jeor com déficit conservador e macros consistentes', () {
     final target = calculateTargets(profile)!;
+    expect(target.macros.fiber, 26);
     expect(target.expenditure, closeTo(2098.5, .01));
     expect(target.macros.kcal, closeTo(1888.65, .01));
     expect(
@@ -69,6 +70,12 @@ void main() {
       calculateTargets({...profile, 'formulaSex': 'female'})!.expenditure,
       closeTo(1899.3, .01),
     );
+  });
+  test('meta antiga ganha fibras sem alterar calorias ou macros', () {
+    final old = Macros(2030, 119, 236, 68).toJson();
+    expect(Macros.fromTargets(old).toJson(), {...old, 'fiber': 28});
+    expect(Macros.fromTargets({...old, 'fiber': 32}).fiber, 32);
+    expect(Macros.fromJson(old).fiber, 0);
   });
   test('bloqueios clínicos, gestação, menores e ausência de coeficiente', () {
     for (final extra in [
